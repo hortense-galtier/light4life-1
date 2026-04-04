@@ -1,0 +1,1 @@
+ C:\\Users\\galti\\Documents\\LOGICIELS_TECHNIQUES\\FlutterProjects\\light4life\\.dart_tool\\flutter_build\\153e06c072e1bbed026680309b201b2e\\native_assets.json: 
