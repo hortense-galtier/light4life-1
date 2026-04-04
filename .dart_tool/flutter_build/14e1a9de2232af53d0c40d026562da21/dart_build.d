@@ -1,1 +1,0 @@
- C:\\Users\\galti\\Documents\\LOGICIELS_TECHNIQUES\\FlutterProjects\\light4life\\.dart_tool\\flutter_build\\14e1a9de2232af53d0c40d026562da21\\dart_build_result.json: 
