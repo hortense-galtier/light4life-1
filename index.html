@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Light4Life - Web App</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <main class="workspace">
+        <header class="topbar" id="app-topbar" hidden>
+          <div class="topbar-greeting">
+            <span id="screen-title">Bonjour Marie</span>
+            <span class="wave" aria-hidden="true">*</span>
+          </div>
+
+          <nav class="topbar-tabs" aria-label="Navigation principale">
+            <button class="topbar-tab active" data-screen="home">Accueil</button>
+            <button class="topbar-tab" data-screen="dossier">Dossier</button>
+            <button class="topbar-tab" data-screen="parcours">Demarches</button>
+            <button class="topbar-tab" data-screen="suivi">Suivi</button>
+            <button class="topbar-tab" data-screen="compte">Profil</button>
+          </nav>
+
+          <div class="topbar-profile">
+            <button class="avatar-button" aria-label="Profil">
+              <svg viewBox="0 0 24 24" class="icon-svg avatar-svg">
+                <circle cx="12" cy="8.2" r="3.2"/>
+                <path d="M5.5 19a6.5 6.5 0 0 1 13 0"/>
+              </svg>
+            </button>
+            <button class="caret-button" aria-label="Ouvrir le menu profil">v</button>
+          </div>
+        </header>
+
+        <section class="screen active auth-screen" id="screen-login">
+          <div class="auth-layout">
+            <section class="auth-panel">
+              <p class="eyebrow">Connexion patient</p>
+              <h1>Bienvenue sur Light4Life</h1>
+              <p class="auth-copy">Connectez-vous pour acceder a votre dashboard et suivre votre parcours permis de conduire.</p>
+
+              <form class="auth-form" id="login-form">
+                <label class="auth-field">
+                  <span>Adresse e-mail</span>
+                  <input id="login-email" type="email" placeholder="marie@email.fr" />
+                </label>
+                <label class="auth-field">
+                  <span>Mot de passe</span>
+                  <input id="login-password" type="password" placeholder="••••••••" />
+                </label>
+                <button class="primary-action auth-submit" id="login-submit" type="submit">Se connecter</button>
+              </form>
+            </section>
+
+            <section class="auth-aside">
+              <div class="auth-card">
+                <strong>Acces securise</strong>
+                <p>Retrouvez vos documents, vos demarches et votre suivi medical dans un seul espace.</p>
+              </div>
+              <div class="auth-card auth-card-soft">
+                <strong>Parcours simplifie</strong>
+                <p>Le prototype vous guide ensuite pas a pas depuis le dossier personnel jusqu'a la decision prefectorale.</p>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-home">
+          <div class="home-hero">
+            <p class="home-kicker">Hello Marie !</p>
+            <h3>Que souhaitons-nous faire aujourd'hui ?</h3>
+          </div>
+
+          <div class="home-shortcuts">
+            <button class="feature-card home-card" data-target="parcours">
+              <span class="feature-icon" aria-hidden="true">
+                <svg viewBox="0 0 64 64" class="icon-svg home-illustration">
+                  <rect x="18" y="16" width="28" height="34" rx="4" fill="#ffffff" stroke="#e6a43d" stroke-width="4"/>
+                  <rect x="24" y="10" width="16" height="8" rx="4" fill="#4fb4b7"/>
+                  <rect x="29" y="6" width="6" height="8" rx="3" fill="#7fd0d2"/>
+                  <path d="M24 26h16M24 32h16M24 38h12" stroke="#e7def7" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="46" cy="42" r="10" fill="#66d2bc"/>
+                  <path d="m41.5 42 3.2 3.2 6-7" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <strong>Mes demarches</strong>
+              <small>Etapes administratives</small>
+            </button>
+
+            <button class="feature-card home-card" data-target="dossier">
+              <span class="feature-icon" aria-hidden="true">
+                <img
+                  src="./images/image_2_mon_dossier.png"
+                  alt=""
+                  class="home-folder-image"
+                />
+              </span>
+              <strong>Mon dossier</strong>
+              <small>Gerer mes documents</small>
+            </button>
+
+              <button class="feature-card home-card" data-target="compte">
+                <span class="feature-icon" aria-hidden="true">
+                <img
+                  src="./images/image_compte.png"
+                  alt=""
+                  class="home-icon-image"
+                />
+              </span>
+              <strong>Mon compte</strong>
+              <small>Profil & infos</small>
+            </button>
+
+            <button class="feature-card home-card" data-target="suivi">
+              <span class="feature-icon" aria-hidden="true">
+                <svg viewBox="0 0 64 64" class="icon-svg home-illustration">
+                  <rect x="14" y="34" width="10" height="16" rx="2" fill="#b58af0"/>
+                  <rect x="28" y="24" width="10" height="26" rx="2" fill="#f3c14d"/>
+                  <rect x="42" y="14" width="12" height="36" rx="2" fill="#6ea7ff"/>
+                  <circle cx="46" cy="42" r="10" fill="#ffffff"/>
+                  <circle cx="46" cy="42" r="8" fill="#dfeeff"/>
+                  <path d="m42 42 3 3 5.5-6" stroke="#6d8dff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <strong>Suivi</strong>
+              <small>Suivre mes demandes</small>
+            </button>
+          </div>
+
+          <div class="home-lower-grid">
+            <div class="home-left-column">
+                <section class="panel home-panel">
+                  <div class="panel-head">
+                    <h4>Mes notifications</h4>
+                    <button class="link-button follow-pill see-all-pill" id="notifications-toggle">Voir tout</button>
+                  </div>
+                  <div class="notif-list">
+                    <button class="notif-item">
+                      <span class="notif-dot purple"></span>
+                      <span>Dossier MDPH en attente</span>
+                      <span class="notif-arrow">></span>
+                    </button>
+                    <button class="notif-item extra-item" hidden>
+                      <span class="notif-dot yellow"></span>
+                      <span>Renouvellement ordonnance</span>
+                      <span class="notif-arrow">></span>
+                    </button>
+                  </div>
+                </section>
+
+                <section class="panel home-panel">
+                  <div class="panel-head">
+                    <h4>Agenda</h4>
+                    <button class="link-button follow-pill see-all-pill" id="agenda-toggle">Voir tout</button>
+                  </div>
+                  <ul class="agenda-list">
+                    <li>
+                      <strong>Lun. 12 mai - 09:00</strong>
+                      <span>Rassembler les comptes-rendus du neurologue</span>
+                    </li>
+                    <li class="extra-item" hidden>
+                      <strong>Mer. 14 mai - 14:30</strong>
+                      <span>Finaliser l'historique des crises</span>
+                    </li>
+                    <li class="extra-item" hidden>
+                      <strong>Ven. 16 mai - 11:00</strong>
+                      <span>Verification du dossier avec l'accompagnant</span>
+                    </li>
+                  </ul>
+                </section>
+              </div>
+
+              <section class="panel home-panel procedure-panel">
+                <div class="procedure-head">
+                  <span class="procedure-badge" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" class="icon-svg home-illustration">
+                      <rect x="18" y="16" width="28" height="34" rx="4" fill="#ffffff" stroke="#e6a43d" stroke-width="4"/>
+                      <rect x="24" y="10" width="16" height="8" rx="4" fill="#4fb4b7"/>
+                      <rect x="29" y="6" width="6" height="8" rx="3" fill="#7fd0d2"/>
+                      <path d="M24 26h16M24 32h16M24 38h12" stroke="#e7def7" stroke-width="3" stroke-linecap="round"/>
+                      <circle cx="46" cy="42" r="10" fill="#66d2bc"/>
+                      <path d="m41.5 42 3.2 3.2 6-7" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <h4>Suivi de ma procedure</h4>
+                </div>
+                <p class="procedure-status" id="home-procedure-status">Etape actuelle: Construction du dossier personnel</p>
+
+                <div class="procedure-meta">
+                  <div class="procedure-progress">
+                  <div class="procedure-track" id="home-procedure-track" aria-hidden="true">
+                      <span class="track-step current" data-home-step="1"></span>
+                      <span class="track-step" data-home-step="2"></span>
+                      <span class="track-step" data-home-step="3"></span>
+                      <span class="track-step" data-home-step="4"></span>
+                      <span class="track-step" data-home-step="5"></span>
+                    </div>
+                    <span class="procedure-count" id="home-procedure-count">1 sur 6</span>
+                  </div>
+                  <button class="link-button follow-pill" data-screen="suivi">Voir mon suivi</button>
+                </div>
+
+                <div class="procedure-actions">
+                  <button class="procedure-item">
+                    <span class="procedure-item-icon"></span>
+                    <span id="home-procedure-action-1">Ajouter les comptes-rendus du neurologue</span>
+                    <span class="notif-arrow">></span>
+                  </button>
+                  <button class="procedure-item">
+                    <span class="procedure-item-icon"></span>
+                    <span id="home-procedure-action-2">Renseigner l'historique des crises</span>
+                    <span class="notif-arrow">></span>
+                  </button>
+                </div>
+              </section>
+            </div>
+        </section>
+
+        <section class="screen" id="screen-dossier">
+            <div class="page-head">
+              <div>
+                <p class="eyebrow">Mon dossier</p>
+                <h3>Documents et demarches administratives</h3>
+              </div>
+            </div>
+
+          <div class="content-grid dossier-grid">
+            <section class="panel">
+              <div class="panel-head">
+                <h4>Documents a ajouter</h4>
+                <button class="primary-action dossier-panel-action" id="add-document-button">Ajouter un document</button>
+              </div>
+              <label class="search-box">
+                <span>Rechercher un document ou une formalite</span>
+                <input type="text" placeholder="CERFA, questionnaire, autres..." />
+              </label>
+
+                  <div class="stack-list">
+                    <article class="list-card">
+                      <div>
+                        <strong>Mes documents</strong>
+                        <p id="dossier-documents-text">Aucun document ajoute pour le moment</p>
+                      </div>
+                      <span class="status-chip warn" id="dossier-documents-status">Non commence</span>
+                    </article>
+                    <article class="list-card">
+                      <div>
+                        <strong>Carte d'identite</strong>
+                        <p id="dossier-identite-text">Aucune piece d'identite ajoutee</p>
+                      </div>
+                      <span class="status-chip warn" id="dossier-identite-status">Non commence</span>
+                    </article>
+                    <article class="list-card">
+                      <div>
+                        <strong>Autres</strong>
+                        <p id="dossier-autres-text">Aucune piece complementaire ajoutee</p>
+                      </div>
+                      <span class="status-chip soft" id="dossier-autres-status">Vide</span>
+                    </article>
+                </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <h4>Documents a remplir</h4>
+                <span class="pill">Formulaires</span>
+              </div>
+
+              <div class="stack-list">
+                <article class="list-card form-list-card" id="dossier-cerfa-card">
+                  <div>
+                    <strong>Formulaire CERFA</strong>
+                    <p id="dossier-cerfa-text">Le formulaire n'a pas encore ete renseigne</p>
+                  </div>
+                  <div class="form-card-actions">
+                    <button class="ghost-button form-fill-button" id="open-cerfa-fill" type="button">Remplir</button>
+                    <span class="status-chip warn" id="dossier-cerfa-status">Non commence</span>
+                  </div>
+                </article>
+                <section class="cerfa-preview" id="cerfa-preview" hidden>
+                  <div class="panel-head cerfa-preview-head">
+                    <h4>Previsualisation du CERFA</h4>
+                    <button class="link-button follow-pill cerfa-preview-close" id="cerfa-preview-close" type="button">Fermer</button>
+                  </div>
+                  <div class="cerfa-preview-sheet">
+                    <div class="cerfa-preview-banner">
+                      <span>CERFA 14880</span>
+                      <strong>Avis medical</strong>
+                    </div>
+                    <div class="cerfa-preview-grid">
+                      <article>
+                        <span>Nom</span>
+                        <strong>Marie Bonjour</strong>
+                      </article>
+                      <article>
+                        <span>Date de naissance</span>
+                        <strong>15/08/1995</strong>
+                      </article>
+                      <article>
+                        <span>Categorie</span>
+                        <strong>Permis B</strong>
+                      </article>
+                      <article>
+                        <span>Motif</span>
+                        <strong>Demande d'avis medical</strong>
+                      </article>
+                    </div>
+                    <div class="cerfa-preview-lines">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                </section>
+
+                <article class="list-card form-list-card" id="dossier-questionnaire-card">
+                  <div>
+                    <strong>Questionnaire de sante</strong>
+                    <p id="dossier-questionnaire-text">Aucun questionnaire de sante transmis</p>
+                  </div>
+                  <div class="form-card-actions">
+                    <button class="ghost-button form-fill-button" id="open-questionnaire-fill" type="button">Remplir</button>
+                    <span class="status-chip warn" id="dossier-questionnaire-status">Non commence</span>
+                  </div>
+                </article>
+                <section class="cerfa-preview" id="questionnaire-preview" hidden>
+                  <div class="panel-head cerfa-preview-head">
+                    <h4>Questionnaire de sante</h4>
+                    <button class="link-button follow-pill cerfa-preview-close" id="questionnaire-preview-close" type="button">Fermer</button>
+                  </div>
+                  <div class="cerfa-preview-sheet">
+                    <div class="cerfa-preview-banner">
+                      <span>Questionnaire</span>
+                      <strong>Etat de sante</strong>
+                    </div>
+                    <div class="cerfa-preview-grid">
+                      <article>
+                        <span>Traitement en cours</span>
+                        <strong>Non renseigne</strong>
+                      </article>
+                      <article>
+                        <span>Derniere crise</span>
+                        <strong>Non renseigne</strong>
+                      </article>
+                      <article>
+                        <span>Suivi neurologique</span>
+                        <strong>En preparation</strong>
+                      </article>
+                      <article>
+                        <span>Signature</span>
+                        <strong>A completer</strong>
+                      </article>
+                    </div>
+                    <div class="cerfa-preview-lines">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </section>
+
+          </div>
+        </section>
+
+        <section class="screen" id="screen-parcours">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Mon permis de conduire</p>
+              <h3>Parcours et recours</h3>
+            </div>
+            <button class="ghost-button">Faire un recours</button>
+          </div>
+
+            <div class="content-grid parcours-grid">
+              <section class="panel">
+                <div class="panel-head">
+                  <h4>Progression</h4>
+                  <span class="pill lavender" id="parcours-step-badge">Etape 1/6</span>
+                </div>
+                <div class="timeline parcours-timeline" id="parcours-timeline">
+                  <button class="timeline-step active" data-parcours-step="dossier">
+                    <span></span>
+                    <div>
+                      <strong>Construction du dossier personnel</strong>
+                    </div>
+                  </button>
+                  <button class="timeline-step" data-parcours-step="medecin">
+                    <span></span>
+                    <div>
+                      <strong>Choix d'un medecin agree</strong>
+                    </div>
+                  </button>
+                  <button class="timeline-step" data-parcours-step="preparation">
+                    <span></span>
+                    <div>
+                      <strong>Preparation du dossier medical-administratif</strong>
+                    </div>
+                  </button>
+                  <button class="timeline-step" data-parcours-step="controle">
+                    <span></span>
+                    <div>
+                      <strong>Controle medical d'aptitude</strong>
+                    </div>
+                  </button>
+                  <button class="timeline-step" data-parcours-step="avis">
+                    <span></span>
+                    <div>
+                      <strong>Avis medical</strong>
+                    </div>
+                  </button>
+                  <button class="timeline-step" data-parcours-step="decision">
+                    <span></span>
+                    <div>
+                      <strong>Decision prefectorale et recours</strong>
+                    </div>
+                  </button>
+                </div>
+              </section>
+
+              <div class="parcours-detail-stack" id="parcours-detail-stack">
+                <section class="panel parcours-detail active" data-parcours-panel="medecin">
+                  <div class="panel-head">
+                    <h4>Choix des medecins</h4>
+                    <button
+                      class="search-toggle"
+                      id="medecin-search-toggle"
+                      aria-label="Afficher la recherche"
+                      aria-expanded="false"
+                    >
+                      <svg viewBox="0 0 24 24" class="icon-svg search-toggle-icon">
+                        <circle cx="11" cy="11" r="6.5"></circle>
+                        <path d="m16 16 4.5 4.5"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="mini-progress">
+                    <div class="mini-progress-head">
+                      <span>Progression de l'etape</span>
+                      <strong id="medecin-progress-label">0%</strong>
+                    </div>
+                    <div class="mini-progress-track" aria-hidden="true">
+                      <span class="mini-progress-fill" id="medecin-progress-fill" style="width: 0%"></span>
+                    </div>
+                  </div>
+                  <div class="inline-search" id="medecin-search-box" hidden>
+                    <input
+                      type="text"
+                      id="medecin-search-input"
+                      placeholder="Rechercher un medecin ou une prefecture"
+                    />
+                  </div>
+                  <div class="filter-row">
+                    <label>
+                      <span>Departement</span>
+                      <select id="departement-select"></select>
+                    </label>
+                    <label>
+                      <span>Prefecture</span>
+                      <select id="prefecture-select"></select>
+                    </label>
+                  </div>
+                  <div class="stack-list compact" id="medecin-results"></div>
+                </section>
+
+                <section class="panel parcours-detail" data-parcours-panel="dossier">
+                  <div class="panel-head">
+                    <h4>Construction du dossier personnel</h4>
+                    <span class="pill">A completer</span>
+                  </div>
+                  <div class="mini-progress">
+                    <div class="mini-progress-head">
+                      <span>Progression du dossier</span>
+                      <strong id="dossier-progress-label">0%</strong>
+                    </div>
+                    <div class="mini-progress-track" aria-hidden="true">
+                      <span class="mini-progress-fill" id="dossier-progress-fill" style="width: 0%"></span>
+                    </div>
+                  </div>
+                  <div class="document-schedule">
+                    <button class="document-card rose" data-screen="dossier" id="doc-card-neurologue">
+                      <span class="document-card-icon">1</span>
+                      <span class="document-card-copy">
+                        <strong>Compte-rendu(s) du neurologue</strong>
+                        <small>Ajouter le ou les comptes-rendus medicaux</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card yellow" data-screen="dossier" id="doc-card-crises">
+                      <span class="document-card-icon">2</span>
+                      <span class="document-card-copy">
+                        <strong>Historique des crises</strong>
+                        <small>Renseigner les antecedents et la frequence</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card blue" data-screen="dossier" id="doc-card-traitement">
+                      <span class="document-card-icon">3</span>
+                      <span class="document-card-copy">
+                        <strong>Historique du traitement medicamenteux</strong>
+                        <small>Ajouter les traitements passes et leurs effets</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card mint" data-screen="dossier" id="doc-card-traitement-cours">
+                      <span class="document-card-icon">4</span>
+                      <span class="document-card-copy">
+                        <strong>Traitement en cours</strong>
+                        <small>Preciser les prescriptions actuellement suivies</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card lavender" data-screen="dossier" id="doc-card-examens">
+                      <span class="document-card-icon">5</span>
+                      <span class="document-card-copy">
+                        <strong>Examens EEG et IRM</strong>
+                        <small>Deposer les resultats des examens disponibles</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                  </div>
+                </section>
+
+                <section class="panel parcours-detail" data-parcours-panel="preparation">
+                  <div class="panel-head">
+                    <h4>Preparation du dossier medical-administratif</h4>
+                    <button class="pill action-pill" id="open-preparation-modal" type="button">Gerer les documents</button>
+                  </div>
+                  <div class="mini-progress">
+                    <div class="mini-progress-head">
+                      <span>Progression de l'etape</span>
+                      <strong id="preparation-progress-label">0%</strong>
+                    </div>
+                    <div class="mini-progress-track" aria-hidden="true">
+                      <span class="mini-progress-fill" id="preparation-progress-fill" style="width: 0%"></span>
+                    </div>
+                  </div>
+                  <div class="document-schedule">
+                    <button class="document-card rose" data-screen="dossier" id="prep-card-cerfa">
+                      <span class="document-card-icon">1</span>
+                      <span class="document-card-copy">
+                        <strong>CERFA 14880</strong>
+                        <small>Pre-remplir le formulaire d'avis medical avant le rendez-vous</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card yellow" data-screen="dossier" id="prep-card-questionnaire">
+                      <span class="document-card-icon">2</span>
+                      <span class="document-card-copy">
+                        <strong>Questionnaire sur l'etat de sante</strong>
+                        <small>Renseigner les informations de sante demandees</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card blue" data-screen="dossier" id="prep-card-identite">
+                      <span class="document-card-icon">3</span>
+                      <span class="document-card-copy">
+                        <strong>Piece d'identite</strong>
+                        <small>Ajouter une piece d'identite valide et lisible</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card mint" data-screen="dossier" id="prep-card-permis">
+                      <span class="document-card-icon">4</span>
+                      <span class="document-card-copy">
+                        <strong>Permis de conduire <em class="optional-inline">(facultatif)</em></strong>
+                        <small>Joindre le permis original si la personne en possede deja un</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                  </div>
+                </section>
+
+                <section class="panel parcours-detail" data-parcours-panel="controle">
+                  <div class="panel-head">
+                    <h4>Controle medical d'aptitude</h4>
+                    <button class="pill action-pill" id="skip-controle-step" type="button">Aucun examen demande</button>
+                  </div>
+                  <p class="step-helper-text" id="controle-helper-text">
+                    Etape facultative : le medecin peut ne demander aucun examen, ou seulement certains de ces elements.
+                  </p>
+                  <div class="mini-progress">
+                    <div class="mini-progress-head">
+                      <span>Progression de l'etape</span>
+                      <strong id="controle-progress-label">0%</strong>
+                    </div>
+                    <div class="mini-progress-track" aria-hidden="true">
+                      <span class="mini-progress-fill" id="controle-progress-fill" style="width: 0%"></span>
+                    </div>
+                  </div>
+                  <div class="controle-actions">
+                    <button class="ghost-button" id="validate-controle-step" type="button">Valider la selection</button>
+                  </div>
+                  <div class="controle-followup" id="controle-followup" hidden>
+                    <div class="mini-panel-head">
+                      <strong>Accompagnement debloque</strong>
+                      <span id="controle-followup-count">0 action</span>
+                    </div>
+                    <p class="step-helper-text" id="controle-followup-copy">
+                      Les prochaines actions adaptees a votre selection apparaissent ici.
+                    </p>
+                    <div class="stack-list compact" id="controle-followup-list"></div>
+                  </div>
+                  <div class="document-schedule">
+                    <button class="document-card rose" id="controle-card-examens" type="button">
+                      <span class="document-card-icon">1</span>
+                      <span class="document-card-copy">
+                        <strong>Examens complementaires</strong>
+                        <small>Suivre les examens supplementaires demandes par le medecin agree</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card yellow" id="controle-card-specialistes" type="button">
+                      <span class="document-card-icon">2</span>
+                      <span class="document-card-copy">
+                        <strong>Avis de specialistes</strong>
+                        <small>Ajouter les comptes-rendus ou recommandations de specialistes si necessaire</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card blue" id="controle-card-commission" type="button">
+                      <span class="document-card-icon">3</span>
+                      <span class="document-card-copy">
+                        <strong>Commission medicale</strong>
+                        <small>Preparer le passage en commission medicale si le dossier le demande</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card mint" id="controle-card-conduite" type="button">
+                      <span class="document-card-icon">4</span>
+                      <span class="document-card-copy">
+                        <strong>Test de conduite</strong>
+                        <small>Anticiper un test de conduite si cela est demande dans la procedure</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                  </div>
+                </section>
+
+                <section class="panel parcours-detail" data-parcours-panel="avis">
+                  <div class="panel-head">
+                    <h4>Avis medical</h4>
+                    <span class="pill">A completer</span>
+                  </div>
+                  <div class="mini-progress">
+                    <div class="mini-progress-head">
+                      <span>Progression de l'etape</span>
+                      <strong id="avis-progress-label">0%</strong>
+                    </div>
+                    <div class="mini-progress-track" aria-hidden="true">
+                      <span class="mini-progress-fill" id="avis-progress-fill" style="width: 0%"></span>
+                    </div>
+                  </div>
+                  <div class="document-schedule">
+                    <button class="document-card rose" id="avis-card-apte" type="button">
+                      <span class="document-card-icon">1</span>
+                      <span class="document-card-copy">
+                        <strong>Avis apte</strong>
+                        <small>Le candidat est reconnu apte a poursuivre sa demarche</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card yellow" id="avis-card-temporaire" type="button">
+                      <span class="document-card-icon">2</span>
+                      <span class="document-card-copy">
+                        <strong>Avis apte temporaire</strong>
+                        <small>Une duree de validite limitee peut etre definie par le medecin</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card blue" id="avis-card-restrictions" type="button">
+                      <span class="document-card-icon">3</span>
+                      <span class="document-card-copy">
+                        <strong>Avis avec restrictions</strong>
+                        <small>Des amenagements ou limitations peuvent etre precises sur le permis</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card mint" id="avis-card-refus" type="button">
+                      <span class="document-card-icon">4</span>
+                      <span class="document-card-copy">
+                        <strong>Refus</strong>
+                        <small>Le medecin peut rendre un avis defavorable a la poursuite de la demarche</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                  </div>
+                </section>
+
+                <section class="panel parcours-detail" data-parcours-panel="decision">
+                  <div class="panel-head">
+                    <h4>Decision prefectorale et recours</h4>
+                    <span class="pill">A completer</span>
+                  </div>
+                  <div class="mini-progress">
+                    <div class="mini-progress-head">
+                      <span>Progression de l'etape</span>
+                      <strong id="decision-progress-label">0%</strong>
+                    </div>
+                    <div class="mini-progress-track" aria-hidden="true">
+                      <span class="mini-progress-fill" id="decision-progress-fill" style="width: 0%"></span>
+                    </div>
+                  </div>
+                  <div class="document-schedule">
+                    <button class="document-card rose" id="decision-card-ants" data-screen="suivi">
+                      <span class="document-card-icon" id="decision-card-ants-icon">1</span>
+                      <span class="document-card-copy">
+                        <strong>Demande en ligne sur l'ANTS</strong>
+                        <small>Conserver l'avis medical et transmettre la demande via l'ANTS</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card yellow" id="decision-card-gracieux" data-screen="suivi">
+                      <span class="document-card-icon" id="decision-card-gracieux-icon">2</span>
+                      <span class="document-card-copy">
+                        <strong>Recours gracieux</strong>
+                        <small>Envoyer une lettre de contestation avec de nouveaux elements si besoin</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card blue" id="decision-card-contentieux" data-screen="suivi">
+                      <span class="document-card-icon" id="decision-card-contentieux-icon">3</span>
+                      <span class="document-card-copy">
+                        <strong>Recours contentieux</strong>
+                        <small>Saisir le tribunal administratif en cas de contestation maintenue</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+        <section class="screen" id="screen-suivi">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Informations</p>
+              <h3>Suivi de la demande</h3>
+            </div>
+            <button class="ghost-button">Voir l'historique</button>
+          </div>
+
+          <div class="stats-row large">
+            <article class="stat-card">
+              <strong>Statut</strong>
+              <span>En analyse</span>
+            </article>
+            <article class="stat-card">
+              <strong>Examens</strong>
+              <span>2 prevus</span>
+            </article>
+            <article class="stat-card">
+              <strong>Rappels</strong>
+              <span>1 urgent</span>
+            </article>
+            <article class="stat-card">
+              <strong>Documents</strong>
+              <span>3 recus</span>
+            </article>
+          </div>
+
+          <div class="content-grid suivi-grid">
+            <section class="panel">
+              <div class="panel-head">
+                <h4>Prochains rendez-vous</h4>
+                <span class="pill">Cette semaine</span>
+              </div>
+              <ul class="event-list">
+                <li>
+                  <strong>Lun. 21 avril</strong>
+                  <span>Examen complementaire - 09:30</span>
+                </li>
+                <li>
+                  <strong>Mer. 23 avril</strong>
+                  <span>Rappel dossier prefecture - 14:00</span>
+                </li>
+                <li>
+                  <strong>Ven. 25 avril</strong>
+                  <span>Point de suivi avec le conseiller</span>
+                </li>
+              </ul>
+            </section>
+
+            <section class="panel side-panel">
+              <div class="panel-head">
+                <h4>Dernieres mises a jour</h4>
+                <span class="pill lavender">Journal</span>
+              </div>
+              <ul class="activity-list">
+                <li>CERFA relu par l'equipe d'accompagnement</li>
+                <li>Convocation medicale ajoutee au dossier</li>
+                <li>Rappel automatique programme pour demain</li>
+              </ul>
+            </section>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-compte">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Mon compte</p>
+              <h3>Informations personnelles et connexion</h3>
+            </div>
+            <button class="ghost-button">Modifier</button>
+          </div>
+
+          <div class="content-grid compte-grid">
+            <section class="profile-card panel">
+              <div class="avatar">BM</div>
+              <div>
+                <strong>Bonjour Maria</strong>
+                <p>Permis B adapte - dossier actif</p>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <h4>Informations personnelles</h4>
+                <span class="pill">Profil</span>
+              </div>
+              <div class="info-grid">
+                <article class="info-card">
+                  <span>Email</span>
+                  <strong>maria.bonjour@email.fr</strong>
+                </article>
+                <article class="info-card">
+                  <span>Telephone</span>
+                  <strong>06 12 34 56 78</strong>
+                </article>
+                <article class="info-card">
+                  <span>Adresse</span>
+                  <strong>Paris, France</strong>
+                </article>
+                <article class="info-card">
+                  <span>Connexion</span>
+                  <strong>Securisee</strong>
+                </article>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <h4>Session</h4>
+                <span class="pill">Connexion</span>
+              </div>
+              <div class="profile-session-actions">
+                <p>Vous etes actuellement connecte a votre espace patient.</p>
+                <button class="ghost-button" id="logout-button" type="button">Se deconnecter</button>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <h4>Preferences</h4>
+                <span class="pill">Notifications</span>
+              </div>
+              <div class="stack-list compact">
+                <article class="list-card">
+                  <div>
+                    <strong>Emails</strong>
+                    <p>Rappels et confirmations actives</p>
+                  </div>
+                </article>
+                <article class="list-card">
+                  <div>
+                    <strong>SMS</strong>
+                    <p>Alertes urgentes actives</p>
+                  </div>
+                </article>
+                <article class="list-card">
+                  <div>
+                    <strong>Confidentialite</strong>
+                    <p>Gestion des donnees personnelles</p>
+                  </div>
+                </article>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal-backdrop" id="document-modal" hidden>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="document-modal-title">
+        <div class="panel-head modal-head">
+          <div>
+            <p class="eyebrow">Ajout de document</p>
+            <h4 id="document-modal-title">Choisir un document a ajouter</h4>
+          </div>
+          <button class="modal-close" id="document-modal-close" aria-label="Fermer la fenetre">x</button>
+        </div>
+        <p class="modal-copy" id="document-modal-copy">Ajoutez un fichier a ce dossier.</p>
+        <div class="modal-document-list" id="document-modal-list">
+          <button class="modal-document-item" data-document-key="neurologue" data-document-flow="dossier">
+            <strong>Compte-rendu(s) du neurologue</strong>
+            <small>Ajouter le ou les comptes-rendus medicaux</small>
+          </button>
+          <button class="modal-document-item" data-document-key="crises" data-document-flow="dossier">
+            <strong>Historique des crises</strong>
+            <small>Renseigner les antecedents et la frequence</small>
+          </button>
+          <button class="modal-document-item" data-document-key="traitement" data-document-flow="dossier">
+            <strong>Historique du traitement medicamenteux</strong>
+            <small>Ajouter les traitements passes et leurs effets</small>
+          </button>
+          <button class="modal-document-item" data-document-key="traitement-cours" data-document-flow="dossier">
+            <strong>Traitement en cours</strong>
+            <small>Preciser les prescriptions actuellement suivies</small>
+          </button>
+          <button class="modal-document-item" data-document-key="examens" data-document-flow="dossier">
+            <strong>Examens EEG et IRM</strong>
+            <small>Deposer les resultats des examens disponibles</small>
+          </button>
+          <button class="modal-document-item" data-document-key="identite" data-document-flow="dossier">
+            <strong>Carte d'identite</strong>
+            <small>Ajouter une piece d'identite valide et lisible</small>
+          </button>
+          <button class="modal-document-item" data-document-key="cerfa" data-document-flow="preparation">
+            <strong>CERFA 14880</strong>
+            <small>Pre-remplir le formulaire d'avis medical avant le rendez-vous</small>
+          </button>
+          <button class="modal-document-item" data-document-key="questionnaire" data-document-flow="preparation">
+            <strong>Questionnaire sur l'etat de sante</strong>
+            <small>Renseigner les informations de sante demandees</small>
+          </button>
+          <button class="modal-document-item" data-document-key="identite" data-document-flow="preparation">
+            <strong>Piece d'identite</strong>
+            <small>Ajouter une piece d'identite valide et lisible</small>
+          </button>
+          <button class="modal-document-item" data-document-key="permis" data-document-flow="preparation">
+            <strong>Permis de conduire</strong>
+            <small>Joindre le permis original si la personne en possede deja un</small>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-notification" id="document-toast" hidden aria-live="polite"></div>
+    <button class="back-to-top-button" id="back-to-top-button" type="button" aria-label="Revenir en haut" hidden>
+      <svg viewBox="0 0 24 24" class="icon-svg">
+        <path d="M12 18V6"></path>
+        <path d="m7 11 5-5 5 5"></path>
+      </svg>
+    </button>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
