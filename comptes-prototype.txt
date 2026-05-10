@@ -1,0 +1,20 @@
+Prototype Light4Life - reference de stockage des comptes
+
+Ce fichier sert de modele de structure pour les comptes du prototype.
+Les comptes crees depuis l'interface sont stockes dans le navigateur
+via localStorage, car une page web statique ne peut pas ecrire
+directement dans un fichier texte local.
+
+Format imagine :
+
+[
+  {
+    "name": "Marie Bonjour",
+    "email": "marie@email.fr",
+    "password": "bonjour123"
+  }
+]
+
+Clés localStorage utilisees par le prototype :
+- light4lifePrototypeAccounts
+- light4lifePrototypeCurrentUser

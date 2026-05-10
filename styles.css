@@ -234,6 +234,10 @@ button {
   margin-top: 32px;
 }
 
+.auth-form-compact {
+  margin-top: 18px;
+}
+
 .auth-field {
   display: grid;
   gap: 8px;
@@ -263,6 +267,26 @@ button {
   justify-self: start;
   margin-top: 8px;
   padding-inline: 26px;
+}
+
+.auth-register-block {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(148, 121, 232, 0.14);
+}
+
+.auth-register-head strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2f2f73;
+}
+
+.auth-register-head p {
+  margin: 8px 0 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: #5f547c;
 }
 
 .auth-aside {
@@ -335,9 +359,10 @@ button {
 .topbar-tabs {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 4px;
-  flex: 1;
+  flex: 0 1 auto;
+  margin-left: auto;
 }
 
 .topbar-tab {
@@ -625,7 +650,7 @@ button {
 
 .home-lower-grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 
@@ -751,6 +776,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 100%;
 }
 
 .agenda-panel {
@@ -915,6 +941,12 @@ button {
   font-weight: 500;
   letter-spacing: -0.01em;
   color: #2f2f73;
+}
+
+.panel-subtitle {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  color: #5f547c;
 }
 
 .notif-item span:nth-child(2),
@@ -1104,6 +1136,153 @@ button {
 
 .dossier-panel-action {
   padding: 12px 16px;
+}
+
+.dossier-upload-surface {
+  display: grid;
+  gap: 14px;
+  margin-top: 10px;
+  margin-bottom: 16px;
+}
+
+.dossier-dropzone {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px 20px;
+  border: 1.5px dashed rgba(148, 121, 232, 0.3);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(244, 239, 255, 0.82));
+  text-align: center;
+  color: #2f2f73;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.dossier-dropzone.is-dragover {
+  border-color: rgba(115, 85, 221, 0.46);
+  box-shadow: 0 14px 28px rgba(115, 85, 221, 0.12);
+  transform: translateY(-1px);
+}
+
+.dossier-dropzone-icon {
+  width: 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(154, 126, 245, 0.14);
+  color: var(--accent-strong);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.dossier-dropzone strong {
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.dossier-dropzone small {
+  font-size: 0.84rem;
+  color: #5f547c;
+}
+
+.dossier-upload-controls {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dossier-upload-controls-end {
+  justify-content: flex-end;
+}
+
+.dossier-upload-field {
+  display: grid;
+  gap: 8px;
+  min-width: 220px;
+  flex: 1;
+}
+
+.dossier-upload-field span {
+  font-size: 0.84rem;
+  color: #5f547c;
+}
+
+.dossier-upload-field select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 121, 232, 0.18);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #33255d;
+}
+
+.dossier-upload-list {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.dossier-modal-selected {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 121, 232, 0.16);
+  border-radius: 16px;
+  background: rgba(244, 239, 255, 0.7);
+  font-size: 0.85rem;
+  color: #5f547c;
+}
+
+.upload-file-card {
+  align-items: stretch;
+}
+
+.upload-file-card strong {
+  margin-top: 0;
+}
+
+.upload-file-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.upload-file-grid article {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(244, 239, 255, 0.7);
+}
+
+.upload-file-grid span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #7c6ca7;
+}
+
+.upload-file-grid strong {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #2f2f73;
+}
+
+.upload-file-actions {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+.upload-remove-button {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(255, 179, 77, 0.18);
+  color: #a96a15;
+  font-size: 0.84rem;
+  font-weight: 600;
 }
 
 #dossier-cerfa-card {
@@ -1509,6 +1688,24 @@ button {
   box-shadow: 0 12px 24px rgba(115, 85, 221, 0.12);
 }
 
+.document-card.is-selected .document-card-check {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: #ffffff;
+  position: relative;
+}
+
+.document-card.is-selected .document-card-check::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid #7a63e8;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
 .document-schedule {
   display: grid;
   gap: 12px;
@@ -1683,6 +1880,43 @@ button {
   box-shadow: 0 28px 60px rgba(115, 85, 221, 0.2);
 }
 
+.permit-choice-card {
+  width: min(520px, 100%);
+  text-align: center;
+}
+
+.permit-choice-card .modal-head {
+  justify-content: center;
+}
+
+.permit-choice-card .modal-head > div {
+  width: 100%;
+}
+
+.permit-choice-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.quiz-block {
+  display: grid;
+  gap: 6px;
+  margin-top: 18px;
+  text-align: left;
+}
+
+.quiz-block strong {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2f2f73;
+}
+
+.permit-choice-button {
+  min-height: 52px;
+}
+
 .modal-head {
   align-items: flex-start;
 }
@@ -1733,6 +1967,11 @@ button {
 .modal-document-item:hover {
   transform: translateY(-1px);
   border-color: rgba(115, 85, 221, 0.24);
+  box-shadow: 0 14px 28px rgba(154, 126, 245, 0.12);
+}
+
+.modal-document-item.is-selected {
+  border-color: rgba(115, 85, 221, 0.34);
   box-shadow: 0 14px 28px rgba(154, 126, 245, 0.12);
 }
 
@@ -1911,6 +2150,7 @@ button {
   .quick-grid,
   .summary-grid,
   .info-grid,
+  .upload-file-grid,
   .filter-row,
   .stats-row,
   .stats-row.large,

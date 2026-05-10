@@ -2,10 +2,27 @@ const screenButtons = document.querySelectorAll("[data-screen]");
 const shortcutButtons = document.querySelectorAll("[data-target]");
 const screens = document.querySelectorAll(".screen");
 const appTopbar = document.getElementById("app-topbar");
+const screenTitle = document.getElementById("screen-title");
 const loginForm = document.getElementById("login-form");
 const loginEmail = document.getElementById("login-email");
 const loginPassword = document.getElementById("login-password");
+const registerForm = document.getElementById("register-form");
+const registerName = document.getElementById("register-name");
+const registerEmail = document.getElementById("register-email");
+const registerPassword = document.getElementById("register-password");
+const registerPasswordConfirm = document.getElementById("register-password-confirm");
 const logoutButton = document.getElementById("logout-button");
+const profileAvatar = document.getElementById("profile-avatar");
+const profileName = document.getElementById("profile-name");
+const profileStatus = document.getElementById("profile-status");
+const profileEmail = document.getElementById("profile-email");
+const homeKicker = document.getElementById("home-kicker");
+const cerfaPreviewName = document.getElementById("cerfa-preview-name");
+const permitChoiceModal = document.getElementById("permit-choice-modal");
+const permitChoiceYes = document.getElementById("permit-choice-yes");
+const permitChoiceNo = document.getElementById("permit-choice-no");
+const antsChoiceYes = document.getElementById("ants-choice-yes");
+const antsChoiceNo = document.getElementById("ants-choice-no");
 
 const departementsPrefectures = [
   { code: "01", departement: "Ain", prefecture: "Bourg-en-Bresse" },
@@ -121,7 +138,21 @@ const medecinSearchInput = document.getElementById("medecin-search-input");
 const medecinResults = document.getElementById("medecin-results");
 const notificationsToggle = document.getElementById("notifications-toggle");
 const agendaToggle = document.getElementById("agenda-toggle");
-const addDocumentButton = document.getElementById("add-document-button");
+const dossierAddMesDocumentsButton = document.getElementById("dossier-add-mes-documents");
+const dossierAddIdentiteButton = document.getElementById("dossier-add-identite");
+const dossierAddAutresButton = document.getElementById("dossier-add-autres");
+const dossierUploadList = document.getElementById("dossier-upload-list");
+const dossierUploadModal = document.getElementById("dossier-upload-modal");
+const dossierUploadModalClose = document.getElementById("dossier-upload-modal-close");
+const dossierUploadModalTitle = document.getElementById("dossier-upload-modal-title");
+const dossierUploadModalCopy = document.getElementById("dossier-upload-modal-copy");
+const dossierUploadChoiceList = document.getElementById("dossier-upload-choice-list");
+const dossierUploadChoiceButtons = document.querySelectorAll("[data-dossier-choice]");
+const dossierUploadSelectedTarget = document.getElementById("dossier-upload-selected-target");
+const dossierUploadModalSurface = document.getElementById("dossier-upload-modal-surface");
+const dossierModalDropzone = document.getElementById("dossier-modal-dropzone");
+const dossierModalBrowseButton = document.getElementById("dossier-modal-browse-button");
+const dossierModalFileInput = document.getElementById("dossier-modal-file-input");
 const openPreparationModalButton = document.getElementById("open-preparation-modal");
 const dossierDocumentsText = document.getElementById("dossier-documents-text");
 const dossierDocumentsStatus = document.getElementById("dossier-documents-status");
@@ -202,7 +233,7 @@ const checklistItems = {
 };
 
 let displayedDepartements = [...departementsPrefectures];
-let currentParcoursStep = "dossier";
+let currentParcoursStep = "declaration";
 let currentDocumentFlow = "dossier";
 let documentToastTimeout;
 let controleStepSkipped = false;
@@ -212,6 +243,66 @@ let selectedMedecinId = "";
 let medecinStepComplete = false;
 let selectedAvisKey = "";
 let isAuthenticated = false;
+let uploadedFileEntries = [];
+let currentUser = null;
+let currentDossierUploadCategory = "";
+
+const prototypeAccountsStorageKey = "light4lifePrototypeAccounts";
+const prototypeSessionStorageKey = "light4lifePrototypeCurrentUser";
+const prototypeProgressStorageKey = "light4lifePrototypeProgress";
+const defaultPrototypeAccounts = [
+  {
+    name: "Hortense Bonjour",
+    email: "hortense@email.fr",
+    password: "bonjour123",
+    hasDrivingLicense: true,
+    hasAntsAccount: true,
+  },
+];
+
+const dossierUploadCategoryDefinitions = {
+  neurologue: {
+    label: "Compte-rendu neurologique",
+    bucket: "mes-documents",
+    bucketLabel: "Mes documents",
+    linkedKeys: ["neurologue"],
+  },
+  examens: {
+    label: "EEG / IRM",
+    bucket: "mes-documents",
+    bucketLabel: "Mes documents",
+    linkedKeys: ["examens"],
+  },
+  historique: {
+    label: "Historique medical",
+    bucket: "mes-documents",
+    bucketLabel: "Mes documents",
+    linkedKeys: ["crises", "traitement", "traitement-cours"],
+  },
+  identite: {
+    label: "Piece d'identite",
+    bucket: "identite",
+    bucketLabel: "Carte d'identite",
+    preparationKey: "identite",
+  },
+  cerfa: {
+    label: "CERFA",
+    bucket: "cerfa",
+    bucketLabel: "Formulaire CERFA",
+    preparationKey: "cerfa",
+  },
+  questionnaire: {
+    label: "Questionnaire de sante",
+    bucket: "questionnaire",
+    bucketLabel: "Questionnaire de sante",
+    preparationKey: "questionnaire",
+  },
+  autres: {
+    label: "Autres",
+    bucket: "autres",
+    bucketLabel: "Autres",
+  },
+};
 
 const dossierDocumentDefinitions = [
   {
@@ -332,7 +423,7 @@ const controleSelection = new Set();
 
 const medecinFirstNames = ["Claire", "Martin", "Sarah", "Louis", "Nina", "Thomas", "Emma", "Hugo"];
 const medecinLastNames = ["Dupont", "Bernard", "Moreau", "Garcia", "Petit", "Lambert", "Roux", "Fontaine"];
-const staticParcoursSteps = ["dossier", "medecin", "preparation", "controle", "avis", "decision"];
+const staticParcoursSteps = ["declaration", "dossier", "medecin", "preparation", "controle", "avis", "decision"];
 
 function getParcoursSteps() {
   return document.querySelectorAll("[data-parcours-step]");
@@ -360,7 +451,7 @@ function getFollowupKeyFromStep(stepName) {
 
 function getParcoursOrder() {
   const followupSteps = getControleFollowupKeys().map((key) => getFollowupStepName(key));
-  return ["dossier", "medecin", "preparation", "controle", ...followupSteps, "avis", "decision"];
+  return ["declaration", "dossier", "medecin", "preparation", "controle", ...followupSteps, "avis", "decision"];
 }
 
 function getStepDisplayLabel(stepName) {
@@ -370,6 +461,7 @@ function getStepDisplayLabel(stepName) {
   }
 
   const labels = {
+    declaration: "Declaration lors de l'inscription",
     dossier: "Construction du dossier personnel",
     medecin: "Choix d'un medecin agree",
     preparation: "Preparation du dossier medical-administratif",
@@ -677,6 +769,261 @@ function setActiveScreen(screenName) {
   });
 }
 
+function loadPrototypeAccounts() {
+  try {
+    const stored = window.localStorage.getItem(prototypeAccountsStorageKey);
+    const sanitizeAccounts = (accounts) =>
+      accounts.filter(
+        (account) =>
+          account.email?.toLowerCase() !== "marie@email.fr" &&
+          account.name?.toLowerCase() !== "marie bonjour",
+      );
+
+    if (!stored) {
+      const sanitizedDefaults = sanitizeAccounts([...defaultPrototypeAccounts]);
+      window.localStorage.setItem(
+        prototypeAccountsStorageKey,
+        JSON.stringify(sanitizedDefaults),
+      );
+      return sanitizedDefaults;
+    }
+
+    const parsed = JSON.parse(stored);
+    const sanitizedAccounts = Array.isArray(parsed) && parsed.length
+      ? sanitizeAccounts(parsed)
+      : sanitizeAccounts([...defaultPrototypeAccounts]);
+
+    if (Array.isArray(parsed) && JSON.stringify(parsed) !== JSON.stringify(sanitizedAccounts)) {
+      window.localStorage.setItem(prototypeAccountsStorageKey, JSON.stringify(sanitizedAccounts));
+    }
+
+    return sanitizedAccounts;
+  } catch {
+    return [...defaultPrototypeAccounts];
+  }
+}
+
+function savePrototypeAccounts(accounts) {
+  window.localStorage.setItem(prototypeAccountsStorageKey, JSON.stringify(accounts));
+}
+
+function loadPrototypeProgressStates() {
+  try {
+    const stored = window.localStorage.getItem(prototypeProgressStorageKey);
+    const parsed = stored ? JSON.parse(stored) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function savePrototypeProgressStates(states) {
+  window.localStorage.setItem(prototypeProgressStorageKey, JSON.stringify(states));
+}
+
+function resetSimulationState() {
+  uploadedFileEntries = [];
+  uploadedDocumentKeys.clear();
+  uploadedPreparationKeys.clear();
+  controleSelection.clear();
+  controleStepSkipped = false;
+  controleStepValidated = false;
+  medecinSearchQuery = "";
+  selectedMedecinId = "";
+  medecinStepComplete = false;
+  selectedAvisKey = "";
+  currentParcoursStep = "declaration";
+}
+
+function saveCurrentUserProgress() {
+  if (!isAuthenticated || !currentUser?.email) {
+    return;
+  }
+
+  const allStates = loadPrototypeProgressStates();
+  allStates[currentUser.email.toLowerCase()] = {
+    uploadedFileEntries,
+    uploadedDocumentKeys: [...uploadedDocumentKeys],
+    uploadedPreparationKeys: [...uploadedPreparationKeys],
+    controleSelection: [...controleSelection],
+    controleStepSkipped,
+    controleStepValidated,
+    selectedMedecinId,
+    medecinStepComplete,
+    selectedAvisKey,
+    currentParcoursStep,
+  };
+  savePrototypeProgressStates(allStates);
+}
+
+function loadCurrentUserProgress() {
+  resetSimulationState();
+
+  if (!currentUser?.email) {
+    return;
+  }
+
+  const allStates = loadPrototypeProgressStates();
+  const savedState = allStates[currentUser.email.toLowerCase()];
+
+  if (!savedState) {
+    return;
+  }
+
+  uploadedFileEntries = Array.isArray(savedState.uploadedFileEntries)
+    ? savedState.uploadedFileEntries
+    : [];
+  (savedState.uploadedDocumentKeys || []).forEach((key) => uploadedDocumentKeys.add(key));
+  (savedState.uploadedPreparationKeys || []).forEach((key) => uploadedPreparationKeys.add(key));
+  (savedState.controleSelection || []).forEach((key) => controleSelection.add(key));
+  controleStepSkipped = Boolean(savedState.controleStepSkipped);
+  controleStepValidated = Boolean(savedState.controleStepValidated);
+  selectedMedecinId = savedState.selectedMedecinId || "";
+  medecinStepComplete = Boolean(savedState.medecinStepComplete);
+  selectedAvisKey = savedState.selectedAvisKey || "";
+  currentParcoursStep = savedState.currentParcoursStep || "declaration";
+}
+
+function hasDrivingLicenseChoice() {
+  return typeof currentUser?.hasDrivingLicense === "boolean";
+}
+
+function hasDrivingLicense() {
+  return currentUser?.hasDrivingLicense !== false;
+}
+
+function hasAntsAccountChoice() {
+  return typeof currentUser?.hasAntsAccount === "boolean";
+}
+
+function hasAntsAccount() {
+  return currentUser?.hasAntsAccount === true;
+}
+
+function persistCurrentUserUpdates() {
+  if (!currentUser?.email) {
+    return;
+  }
+
+  const accounts = loadPrototypeAccounts();
+  const updatedAccounts = accounts.map((account) =>
+    account.email.toLowerCase() === currentUser.email.toLowerCase()
+      ? { ...account, ...currentUser }
+      : account,
+  );
+  savePrototypeAccounts(updatedAccounts);
+  window.localStorage.setItem(
+    prototypeSessionStorageKey,
+    JSON.stringify({ email: currentUser.email }),
+  );
+}
+
+function closePermitChoiceModal() {
+  permitChoiceModal?.setAttribute("hidden", "");
+}
+
+function openPermitChoiceModal() {
+  permitChoiceModal?.removeAttribute("hidden");
+}
+
+function maybeCloseOnboardingQuiz() {
+  if (hasDrivingLicenseChoice() && hasAntsAccountChoice()) {
+    closePermitChoiceModal();
+    renderAllDocumentSimulations();
+  }
+}
+
+function renderPermitDependentUI() {
+  const shouldShowPermitOption = hasDrivingLicense();
+  const permitCard = document.getElementById("prep-card-permis");
+  const conduiteCard = document.getElementById("controle-card-conduite");
+
+  if (!shouldShowPermitOption) {
+    uploadedPreparationKeys.delete("permis");
+    controleSelection.delete("conduite");
+
+    if (currentParcoursStep === "controle-suivi-conduite") {
+      currentParcoursStep = "controle";
+    }
+  }
+
+  if (permitCard) {
+    permitCard.hidden = !shouldShowPermitOption;
+  }
+
+  if (conduiteCard) {
+    conduiteCard.hidden = !shouldShowPermitOption;
+  }
+}
+
+function renderDeclarationSteps() {
+  const antsAccountStep = document.querySelector('[data-declaration-step="ants-account"]');
+  const declarationSteps = document.querySelectorAll("[data-declaration-step]");
+
+  if (antsAccountStep) {
+    antsAccountStep.hidden = hasAntsAccount();
+  }
+
+  declarationSteps.forEach((step, index) => {
+    if (step.hidden) {
+      return;
+    }
+
+    const badge = step.querySelector("[data-declaration-index]");
+    if (badge) {
+      badge.textContent = `${index + 1 - [...declarationSteps].slice(0, index).filter((item) => item.hidden).length}`;
+    }
+  });
+}
+
+function getAvatarInitials(name) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("") || "MB";
+}
+
+function updateUserUI() {
+  const displayName = currentUser?.name || "Hortense Bonjour";
+  const displayEmail = currentUser?.email || "hortense@email.fr";
+  const firstName = displayName.split(" ").filter(Boolean)[0] || displayName;
+  const permitStatus = hasDrivingLicenseChoice()
+    ? hasDrivingLicense()
+      ? "Permis B adapte - dossier actif"
+      : "Pas encore de permis - dossier actif"
+    : "Situation permis a renseigner - dossier actif";
+
+  if (screenTitle) {
+    screenTitle.textContent = `Bonjour ${displayName}`;
+  }
+
+  if (homeKicker) {
+    homeKicker.textContent = `Hello ${firstName} !`;
+  }
+
+  if (profileAvatar) {
+    profileAvatar.textContent = getAvatarInitials(displayName);
+  }
+
+  if (profileName) {
+    profileName.textContent = `Bonjour ${displayName}`;
+  }
+
+  if (profileStatus) {
+    profileStatus.textContent = permitStatus;
+  }
+
+  if (profileEmail) {
+    profileEmail.textContent = displayEmail;
+  }
+
+  if (cerfaPreviewName) {
+    cerfaPreviewName.textContent = displayName;
+  }
+}
+
 function setAuthenticationState(authenticated) {
   isAuthenticated = authenticated;
 
@@ -685,11 +1032,20 @@ function setAuthenticationState(authenticated) {
   }
 
   if (!authenticated) {
+    resetSimulationState();
+    currentUser = null;
+    window.localStorage.removeItem(prototypeSessionStorageKey);
+    updateUserUI();
     setActiveScreen("login");
     return;
   }
 
+  loadCurrentUserProgress();
+  updateUserUI();
   setActiveScreen("home");
+  closePermitChoiceModal();
+  renderAllDocumentSimulations();
+  setParcoursStep(currentParcoursStep);
 }
 
 function renderDepartements() {
@@ -905,6 +1261,178 @@ function showDocumentToast(message) {
   }, 2600);
 }
 
+function formatFileSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return "0 Ko";
+  }
+
+  if (bytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(bytes / 1024))} Ko`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1).replace(".", ",")} Mo`;
+}
+
+function getUploadAssociationLabel(category) {
+  return dossierUploadCategoryDefinitions[category]?.bucketLabel || "Mes documents";
+}
+
+function getUploadCategoryLabel(category) {
+  return dossierUploadCategoryDefinitions[category]?.label || category;
+}
+
+function getDossierModalTargetLabel(category) {
+  const labels = {
+    neurologue: "Mes documents > Compte-rendu neurologique",
+    examens: "Mes documents > EEG / IRM",
+    historique: "Mes documents > Historique medical",
+    identite: "Carte d'identite",
+    autres: "Autres",
+  };
+
+  return labels[category] || getUploadCategoryLabel(category);
+}
+
+function updateDossierUploadTarget() {
+  if (!dossierUploadSelectedTarget) {
+    return;
+  }
+
+  if (!currentDossierUploadCategory) {
+    dossierUploadSelectedTarget.textContent = "";
+    dossierUploadSelectedTarget.setAttribute("hidden", "");
+    return;
+  }
+
+  dossierUploadSelectedTarget.textContent = `Document cible : ${getDossierModalTargetLabel(currentDossierUploadCategory)}`;
+  dossierUploadSelectedTarget.removeAttribute("hidden");
+}
+
+function syncUploadCategorySideEffects() {
+  Object.entries(dossierUploadCategoryDefinitions).forEach(([categoryKey, config]) => {
+    if (config.preparationKey) {
+      const hasEntry = uploadedFileEntries.some((entry) => entry.category === categoryKey);
+
+      if (hasEntry) {
+        uploadedPreparationKeys.add(config.preparationKey);
+      } else {
+        uploadedPreparationKeys.delete(config.preparationKey);
+      }
+    }
+  });
+
+  uploadedDocumentKeys.delete("neurologue");
+  uploadedDocumentKeys.delete("examens");
+  uploadedDocumentKeys.delete("crises");
+  uploadedDocumentKeys.delete("traitement");
+  uploadedDocumentKeys.delete("traitement-cours");
+
+  uploadedFileEntries.forEach((entry) => {
+    const config = dossierUploadCategoryDefinitions[entry.category];
+    config?.linkedKeys?.forEach((key) => uploadedDocumentKeys.add(key));
+  });
+}
+
+function renderDossierUploadList() {
+  if (!dossierUploadList) {
+    return;
+  }
+
+  if (uploadedFileEntries.length === 0) {
+    dossierUploadList.setAttribute("hidden", "");
+    dossierUploadList.innerHTML = "";
+    return;
+  }
+
+  dossierUploadList.removeAttribute("hidden");
+  dossierUploadList.innerHTML = uploadedFileEntries
+    .slice()
+    .reverse()
+    .map(
+      (entry) => `
+        <article class="list-card upload-file-card">
+          <div>
+            <strong>${entry.name}</strong>
+            <div class="upload-file-grid">
+              <article>
+                <span>Categorie</span>
+                <strong>${entry.categoryLabel}</strong>
+              </article>
+              <article>
+                <span>Nom</span>
+                <strong>${entry.name}</strong>
+              </article>
+              <article>
+                <span>Taille</span>
+                <strong>${entry.sizeLabel}</strong>
+              </article>
+              <article>
+                <span>Type</span>
+                <strong>${entry.typeLabel}</strong>
+              </article>
+            </div>
+          </div>
+          <div class="upload-file-actions">
+            <span class="pill">${entry.associationLabel}</span>
+            <button class="upload-remove-button" type="button" data-upload-remove="${entry.id}">Supprimer</button>
+          </div>
+        </article>
+      `,
+    )
+    .join("");
+
+  dossierUploadList.querySelectorAll("[data-upload-remove]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const { uploadRemove } = button.dataset;
+      const removedEntry = uploadedFileEntries.find((entry) => entry.id === uploadRemove);
+      uploadedFileEntries = uploadedFileEntries.filter((entry) => entry.id !== uploadRemove);
+      syncUploadCategorySideEffects();
+      renderAllDocumentSimulations();
+      showDocumentToast(
+        removedEntry
+          ? `${removedEntry.name} a ete retire du prototype.`
+          : "Le document a ete retire du prototype.",
+      );
+    });
+  });
+}
+
+function handleDossierFiles(fileList, forcedCategory = currentDossierUploadCategory) {
+  const files = Array.from(fileList || []);
+
+  if (files.length === 0) {
+    return;
+  }
+
+  const selectedCategory = forcedCategory || "neurologue";
+  const categoryConfig = dossierUploadCategoryDefinitions[selectedCategory] || dossierUploadCategoryDefinitions.neurologue;
+
+  files.forEach((file) => {
+    uploadedFileEntries.push({
+      id: `${file.name}-${file.size}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      name: file.name,
+      sizeLabel: formatFileSize(file.size),
+      typeLabel: file.type || "Type inconnu",
+      category: selectedCategory,
+      categoryLabel: getUploadCategoryLabel(selectedCategory),
+      associationLabel: getUploadAssociationLabel(selectedCategory),
+    });
+  });
+
+  syncUploadCategorySideEffects();
+
+  renderAllDocumentSimulations();
+  showDocumentToast(
+    `${files.length} document${files.length > 1 ? "s" : ""} ajoute${files.length > 1 ? "s" : ""} dans ${categoryConfig.label}.`,
+  );
+
+  if (dossierModalFileInput) {
+    dossierModalFileInput.value = "";
+  }
+
+  closeDossierUploadModal();
+}
+
 function updateBackToTopVisibility() {
   if (!backToTopButton) {
     return;
@@ -918,30 +1446,41 @@ function updateBackToTopVisibility() {
 }
 
 function renderUploadCards() {
-  const mesDocumentsCount = uploadedDocumentKeys.size;
+  const mesDocumentFiles = uploadedFileEntries.filter((entry) =>
+    ["neurologue", "examens", "historique"].includes(entry.category),
+  );
+  const identiteFiles = uploadedFileEntries.filter((entry) => entry.category === "identite");
+  const autresFiles = uploadedFileEntries.filter((entry) => entry.category === "autres");
+  const mesDocumentsCount = mesDocumentFiles.length;
+  const mesDocumentsComplete = uploadedDocumentKeys.size === dossierDocumentDefinitions.length;
+
   if (dossierDocumentsText && dossierDocumentsStatus) {
     dossierDocumentsText.textContent =
       mesDocumentsCount > 0
-        ? `${mesDocumentsCount} document${mesDocumentsCount > 1 ? "s" : ""} medical${mesDocumentsCount > 1 ? "aux" : ""} ajoute${mesDocumentsCount > 1 ? "s" : ""}`
+        ? mesDocumentFiles.length > 0
+          ? `${mesDocumentFiles.length} fichier${mesDocumentFiles.length > 1 ? "s" : ""} associe${mesDocumentFiles.length > 1 ? "s" : ""} - dernier : ${mesDocumentFiles[mesDocumentFiles.length - 1].name}`
+          : `${mesDocumentsCount} document${mesDocumentsCount > 1 ? "s" : ""} medical${mesDocumentsCount > 1 ? "aux" : ""} ajoute${mesDocumentsCount > 1 ? "s" : ""}`
         : "Aucun document ajoute pour le moment";
     dossierDocumentsStatus.textContent =
       mesDocumentsCount === 0
         ? "Non commence"
-        : mesDocumentsCount === dossierDocumentDefinitions.length
+        : mesDocumentsComplete
           ? "Complet"
           : "En cours";
     dossierDocumentsStatus.className =
       mesDocumentsCount === 0
         ? "status-chip warn"
-        : mesDocumentsCount === dossierDocumentDefinitions.length
+        : mesDocumentsComplete
           ? "status-chip ok"
           : "status-chip soft";
   }
 
   if (dossierIdentiteText && dossierIdentiteStatus) {
-    const done = uploadedPreparationKeys.has("identite");
+    const done = uploadedPreparationKeys.has("identite") || identiteFiles.length > 0;
     dossierIdentiteText.textContent = done
-      ? "Piece d'identite ajoutee"
+      ? identiteFiles.length > 0
+        ? `${identiteFiles.length} fichier${identiteFiles.length > 1 ? "s" : ""} associe${identiteFiles.length > 1 ? "s" : ""} - dernier : ${identiteFiles[identiteFiles.length - 1].name}`
+        : "Piece d'identite ajoutee"
       : "Aucune piece d'identite ajoutee";
     dossierIdentiteStatus.textContent = done ? "Complet" : "Non commence";
     dossierIdentiteStatus.className = done ? "status-chip ok" : "status-chip warn";
@@ -972,6 +1511,106 @@ function renderUploadCards() {
   if (openQuestionnaireFill) {
     openQuestionnaireFill.textContent = questionnaireFile ? "Rempli" : "Remplir";
   }
+
+  if (dossierAutresText && dossierAutresStatus) {
+    const autresCount = autresFiles.length + (uploadedPreparationKeys.has("permis") ? 1 : 0);
+
+    dossierAutresText.textContent =
+      autresCount === 0
+        ? "Aucune piece complementaire ajoutee"
+        : autresFiles.length > 0
+          ? `${autresFiles.length} fichier${autresFiles.length > 1 ? "s" : ""} associe${autresFiles.length > 1 ? "s" : ""} - dernier : ${autresFiles[autresFiles.length - 1].name}`
+          : `${autresCount} piece${autresCount > 1 ? "s" : ""} complementaire${autresCount > 1 ? "s" : ""} ajoutee${autresCount > 1 ? "s" : ""}`;
+    dossierAutresStatus.textContent =
+      autresCount === 0 ? "Vide" : uploadedPreparationKeys.has("permis") && autresFiles.length > 0 ? "Complet" : "En cours";
+    dossierAutresStatus.className =
+      autresCount === 0
+        ? "status-chip soft"
+        : uploadedPreparationKeys.has("permis") && autresFiles.length > 0
+          ? "status-chip ok"
+          : "status-chip soft";
+  }
+}
+
+function renderDossierChoiceState() {
+  dossierUploadChoiceButtons.forEach((button) => {
+    const category = button.dataset.dossierChoice;
+    const hasUploadedFile = uploadedFileEntries.some((entry) => entry.category === category);
+    button.classList.toggle("is-selected", category === currentDossierUploadCategory);
+    button.classList.toggle("is-added", hasUploadedFile);
+  });
+}
+
+function updateDossierUploadModalSelection() {
+  updateDossierUploadTarget();
+  renderDossierChoiceState();
+}
+
+function showDossierUploadSurface(category) {
+  currentDossierUploadCategory = category;
+  dossierUploadModalSurface?.removeAttribute("hidden");
+  updateDossierUploadModalSelection();
+}
+
+function openDossierUploadModal(mode) {
+  currentDossierUploadCategory = "";
+  dossierUploadModal?.removeAttribute("hidden");
+  dossierUploadChoiceList?.removeAttribute("hidden");
+  dossierUploadModalSurface?.setAttribute("hidden", "");
+
+  if (dossierModalFileInput) {
+    dossierModalFileInput.value = "";
+  }
+
+  if (mode === "mes-documents") {
+    if (dossierUploadModalTitle) {
+      dossierUploadModalTitle.textContent = "Ajouter un document";
+    }
+
+    if (dossierUploadModalCopy) {
+      dossierUploadModalCopy.textContent =
+        "Choisissez d'abord le document medical a ajouter, puis deposez votre fichier dans la zone prevue.";
+    }
+  } else if (mode === "identite") {
+    if (dossierUploadModalTitle) {
+      dossierUploadModalTitle.textContent = "Ajouter une piece d'identite";
+    }
+
+    if (dossierUploadModalCopy) {
+      dossierUploadModalCopy.textContent =
+        "Deposez ici la piece d'identite a associer a votre dossier.";
+    }
+
+    dossierUploadChoiceList?.setAttribute("hidden", "");
+    showDossierUploadSurface("identite");
+  } else {
+    if (dossierUploadModalTitle) {
+      dossierUploadModalTitle.textContent = "Ajouter un document complementaire";
+    }
+
+    if (dossierUploadModalCopy) {
+      dossierUploadModalCopy.textContent =
+        "Deposez ici un document complementaire a conserver dans la categorie Autres.";
+    }
+
+    dossierUploadChoiceList?.setAttribute("hidden", "");
+    showDossierUploadSurface("autres");
+  }
+
+  updateDossierUploadModalSelection();
+}
+
+function closeDossierUploadModal() {
+  dossierUploadModal?.setAttribute("hidden", "");
+  dossierUploadModalSurface?.setAttribute("hidden", "");
+  dossierUploadChoiceList?.removeAttribute("hidden");
+  currentDossierUploadCategory = "";
+
+  if (dossierModalFileInput) {
+    dossierModalFileInput.value = "";
+  }
+
+  updateDossierUploadModalSelection();
 }
 
 function setChecklistItemState(config, done, doneLabel, pendingLabel) {
@@ -1025,12 +1664,12 @@ function updateHomeAndParcoursStatus() {
     .map((key) => controleFollowupDefinitions[key]?.homeLabel)
     .filter(Boolean);
 
-  let currentStepLabel = "Etape actuelle: Construction du dossier personnel";
-  let currentStepCount = `1 sur ${totalSteps}`;
-  let badgeText = "Etape 1/6";
-  let stepIndex = 1;
-  let action1 = "Ajouter les comptes-rendus du neurologue";
-  let action2 = "Renseigner l'historique des crises";
+  let currentStepLabel = "Etape actuelle: Declaration lors de l'inscription";
+  let stepIndex = getParcoursOrder().indexOf("declaration") + 1;
+  let currentStepCount = `${stepIndex} sur ${totalSteps}`;
+  let badgeText = `Etape ${stepIndex}/${totalSteps}`;
+  let action1 = "Creer un compte ANTS";
+  let action2 = "Obtenir le numero NEPH";
 
   if (avisComplete) {
     currentStepLabel = "Etape actuelle: Decision prefectorale et recours";
@@ -1081,8 +1720,6 @@ function updateHomeAndParcoursStatus() {
     badgeText = `Etape ${stepIndex}/${totalSteps}`;
     action1 = "Choisir un medecin agree";
     action2 = "Verifier la prefecture selectionnee";
-  } else {
-    badgeText = `Etape 1/${totalSteps}`;
   }
 
   if (homeProcedureStatus) {
@@ -1230,39 +1867,21 @@ function renderPreparationSimulation() {
     preparationStep.classList.toggle("done", preparationComplete);
   }
 
-  if (dossierAutresText && dossierAutresStatus) {
-    const autresCount = ["identite", "permis"].filter((key) =>
-      uploadedPreparationKeys.has(key),
-    ).length;
-
-    dossierAutresText.textContent =
-      autresCount === 0
-        ? "Aucune piece complementaire ajoutee"
-        : `${autresCount} piece${autresCount > 1 ? "s" : ""} complementaire${autresCount > 1 ? "s" : ""} ajoutee${autresCount > 1 ? "s" : ""}`;
-    dossierAutresStatus.textContent =
-      autresCount === 0 ? "Vide" : autresCount === 2 ? "Complet" : "En cours";
-    dossierAutresStatus.className =
-      autresCount === 0
-        ? "status-chip soft"
-        : autresCount === 2
-          ? "status-chip ok"
-          : "status-chip soft";
-  }
-
   if (preparationComplete && currentParcoursStep === "preparation") {
     setParcoursStep("controle");
-  }
-
-  if (!preparationComplete && currentParcoursStep === "controle") {
-    setParcoursStep("preparation");
   }
 }
 
 function renderControleSimulation() {
   const controleStep = document.querySelector('[data-parcours-step="controle"]');
-  const selectedCount = controleSelection.size;
+  const activeControleDefinitions = controleDocumentDefinitions.filter(
+    (documentItem) => !documentItem.card?.hidden,
+  );
+  const selectedCount = activeControleDefinitions.filter((documentItem) =>
+    controleSelection.has(documentItem.key),
+  ).length;
   const followupKeys = getControleFollowupKeys();
-  const totalCount = controleDocumentDefinitions.length;
+  const totalCount = Math.max(1, activeControleDefinitions.length);
   const progress = controleStepSkipped
     ? 100
     : controleStepValidated
@@ -1309,8 +1928,6 @@ function renderControleSimulation() {
 
   if (controleStepSkipped && currentParcoursStep === "controle") {
     setParcoursStep("avis");
-  } else if (followupKeys.length > 0 && currentParcoursStep === "controle") {
-    setParcoursStep(getFollowupStepName(followupKeys[0]));
   }
 }
 
@@ -1389,6 +2006,8 @@ function renderDecisionSimulation() {
 }
 
 function renderAllDocumentSimulations() {
+  renderPermitDependentUI();
+  renderDeclarationSteps();
   renderDynamicControleSteps();
   renderDossierSimulation();
   renderMedecinSimulation();
@@ -1397,19 +2016,73 @@ function renderAllDocumentSimulations() {
   renderAvisSimulation();
   renderDecisionSimulation();
   renderUploadCards();
+  renderDossierUploadList();
   renderChecklistState();
   renderDocumentModalState();
   updateHomeAndParcoursStatus();
-
-  if (addDocumentButton) {
-    addDocumentButton.textContent = "Ajouter un document";
-    addDocumentButton.disabled = false;
-  }
+  saveCurrentUserProgress();
 }
 
 function setupDocumentSimulation() {
-  addDocumentButton?.addEventListener("click", () => {
-    openDocumentModal("dossier");
+  dossierAddMesDocumentsButton?.addEventListener("click", () => {
+    openDossierUploadModal("mes-documents");
+  });
+
+  dossierAddIdentiteButton?.addEventListener("click", () => {
+    openDossierUploadModal("identite");
+  });
+
+  dossierAddAutresButton?.addEventListener("click", () => {
+    openDossierUploadModal("autres");
+  });
+
+  dossierUploadModalClose?.addEventListener("click", () => {
+    closeDossierUploadModal();
+  });
+
+  dossierUploadModal?.addEventListener("click", (event) => {
+    if (event.target === dossierUploadModal) {
+      closeDossierUploadModal();
+    }
+  });
+
+  dossierUploadChoiceButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const { dossierChoice } = button.dataset;
+
+      if (!dossierChoice) {
+        return;
+      }
+
+      showDossierUploadSurface(dossierChoice);
+    });
+  });
+
+  dossierModalBrowseButton?.addEventListener("click", () => {
+    dossierModalFileInput?.click();
+  });
+
+  dossierModalFileInput?.addEventListener("change", () => {
+    handleDossierFiles(dossierModalFileInput.files);
+  });
+
+  ["dragenter", "dragover"].forEach((eventName) => {
+    dossierModalDropzone?.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dossierModalDropzone.classList.add("is-dragover");
+    });
+  });
+
+  ["dragleave", "drop"].forEach((eventName) => {
+    dossierModalDropzone?.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dossierModalDropzone.classList.remove("is-dragover");
+    });
+  });
+
+  dossierModalDropzone?.addEventListener("drop", (event) => {
+    const fileList = event.dataTransfer?.files;
+    handleDossierFiles(fileList);
   });
 
   openPreparationModalButton?.addEventListener("click", () => {
@@ -1427,6 +2100,10 @@ function setupDocumentSimulation() {
   });
 
   document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && dossierUploadModal && !dossierUploadModal.hasAttribute("hidden")) {
+      closeDossierUploadModal();
+    }
+
     if (event.key === "Escape" && documentModal && !documentModal.hasAttribute("hidden")) {
       closeDocumentModal();
     }
@@ -1583,14 +2260,116 @@ backToTopButton?.addEventListener("click", () => {
 
 loginForm?.addEventListener("submit", (event) => {
   event.preventDefault();
+  const email = loginEmail?.value.trim().toLowerCase() || "";
+  const password = loginPassword?.value || "";
+  const accounts = loadPrototypeAccounts();
+  const matchingAccount = accounts.find(
+    (account) => account.email.toLowerCase() === email && account.password === password,
+  );
+
+  if (!matchingAccount) {
+    showDocumentToast("Compte introuvable ou mot de passe incorrect.");
+    return;
+  }
+
+  currentUser = matchingAccount;
+  window.localStorage.setItem(
+    prototypeSessionStorageKey,
+    JSON.stringify({ email: matchingAccount.email }),
+  );
   setAuthenticationState(true);
-  showDocumentToast(`Connexion reussie${loginEmail?.value ? ` pour ${loginEmail.value}` : ""}.`);
+  showDocumentToast(`Connexion reussie pour ${matchingAccount.email}.`);
   loginPassword && (loginPassword.value = "");
+});
+
+registerForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const name = registerName?.value.trim() || "";
+  const email = registerEmail?.value.trim().toLowerCase() || "";
+  const password = registerPassword?.value || "";
+  const passwordConfirm = registerPasswordConfirm?.value || "";
+
+  if (!name || !email || !password || !passwordConfirm) {
+    showDocumentToast("Merci de remplir tous les champs pour creer le compte.");
+    return;
+  }
+
+  if (password !== passwordConfirm) {
+    showDocumentToast("Les mots de passe ne correspondent pas.");
+    return;
+  }
+
+  const accounts = loadPrototypeAccounts();
+  const alreadyExists = accounts.some((account) => account.email.toLowerCase() === email);
+
+  if (alreadyExists) {
+    showDocumentToast("Un compte existe deja avec cette adresse e-mail.");
+    return;
+  }
+
+  const newAccount = { name, email, password, hasDrivingLicense: null, hasAntsAccount: null };
+  accounts.push(newAccount);
+  savePrototypeAccounts(accounts);
+
+  registerForm.reset();
+  currentUser = newAccount;
+  window.localStorage.setItem(
+    prototypeSessionStorageKey,
+    JSON.stringify({ email: newAccount.email }),
+  );
+  setAuthenticationState(true);
+  openPermitChoiceModal();
+  showDocumentToast(`Le compte ${email} a ete cree dans le prototype.`);
 });
 
 logoutButton?.addEventListener("click", () => {
   setAuthenticationState(false);
   showDocumentToast("Vous avez ete deconnecte.");
+});
+
+permitChoiceYes?.addEventListener("click", () => {
+  if (!currentUser) {
+    return;
+  }
+
+  currentUser = { ...currentUser, hasDrivingLicense: true };
+  persistCurrentUserUpdates();
+  maybeCloseOnboardingQuiz();
+  showDocumentToast("Le parcours a ete ajuste avec le permis de conduire.");
+});
+
+permitChoiceNo?.addEventListener("click", () => {
+  if (!currentUser) {
+    return;
+  }
+
+  currentUser = { ...currentUser, hasDrivingLicense: false };
+  persistCurrentUserUpdates();
+  maybeCloseOnboardingQuiz();
+  showDocumentToast("Le parcours a ete ajuste sans permis de conduire.");
+});
+
+antsChoiceYes?.addEventListener("click", () => {
+  if (!currentUser) {
+    return;
+  }
+
+  currentUser = { ...currentUser, hasAntsAccount: true };
+  persistCurrentUserUpdates();
+  maybeCloseOnboardingQuiz();
+  showDocumentToast("Le parcours a ete ajuste avec un compte ANTS existant.");
+});
+
+antsChoiceNo?.addEventListener("click", () => {
+  if (!currentUser) {
+    return;
+  }
+
+  currentUser = { ...currentUser, hasAntsAccount: false };
+  persistCurrentUserUpdates();
+  maybeCloseOnboardingQuiz();
+  showDocumentToast("Le parcours conserve la creation de compte ANTS.");
 });
 
 screenButtons.forEach((button) => {
@@ -1636,11 +2415,28 @@ parcoursDetailStack?.addEventListener("click", (event) => {
 
 renderDepartements();
 renderMedecins();
-setParcoursStep("dossier");
+setParcoursStep(currentParcoursStep);
 setupMedecinSearch();
 setupExpandToggle(notificationsToggle, ".notif-list .extra-item");
 setupExpandToggle(agendaToggle, ".agenda-list .extra-item");
 setupDocumentSimulation();
 updateBackToTopVisibility();
 window.addEventListener("scroll", updateBackToTopVisibility);
-setAuthenticationState(false);
+updateUserUI();
+
+try {
+  const storedSession = window.localStorage.getItem(prototypeSessionStorageKey);
+  const parsedSession = storedSession ? JSON.parse(storedSession) : null;
+  const matchingAccount = parsedSession?.email
+    ? loadPrototypeAccounts().find((account) => account.email === parsedSession.email)
+    : null;
+
+  if (matchingAccount) {
+    currentUser = matchingAccount;
+    setAuthenticationState(true);
+  } else {
+    setAuthenticationState(false);
+  }
+} catch {
+  setAuthenticationState(false);
+}

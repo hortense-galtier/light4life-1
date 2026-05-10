@@ -12,15 +12,14 @@
         <header class="topbar" id="app-topbar" hidden>
           <div class="topbar-greeting">
             <span id="screen-title">Bonjour Marie</span>
-            <span class="wave" aria-hidden="true">*</span>
           </div>
 
           <nav class="topbar-tabs" aria-label="Navigation principale">
-            <button class="topbar-tab active" data-screen="home">Accueil</button>
-            <button class="topbar-tab" data-screen="dossier">Dossier</button>
-            <button class="topbar-tab" data-screen="parcours">Demarches</button>
+            <button class="topbar-tab" data-screen="home">Accueil</button>
+            <button class="topbar-tab" data-screen="parcours">Mes demarches</button>
+            <button class="topbar-tab" data-screen="dossier">Mon dossier</button>
+            <button class="topbar-tab" data-screen="compte">Mon compte</button>
             <button class="topbar-tab" data-screen="suivi">Suivi</button>
-            <button class="topbar-tab" data-screen="compte">Profil</button>
           </nav>
 
           <div class="topbar-profile">
@@ -52,6 +51,32 @@
                 </label>
                 <button class="primary-action auth-submit" id="login-submit" type="submit">Se connecter</button>
               </form>
+
+              <section class="auth-register-block">
+                <div class="auth-register-head">
+                  <strong>Creer un compte</strong>
+                  <p>Ajoutez un nouveau compte patient dans le prototype, puis connectez-vous avec celui-ci.</p>
+                </div>
+                <form class="auth-form auth-form-compact" id="register-form">
+                  <label class="auth-field">
+                    <span>Nom complet</span>
+                    <input id="register-name" type="text" placeholder="Marie Bonjour" />
+                  </label>
+                  <label class="auth-field">
+                    <span>Adresse e-mail</span>
+                    <input id="register-email" type="email" placeholder="marie@email.fr" />
+                  </label>
+                  <label class="auth-field">
+                    <span>Mot de passe</span>
+                    <input id="register-password" type="password" placeholder="Choisir un mot de passe" />
+                  </label>
+                  <label class="auth-field">
+                    <span>Confirmer le mot de passe</span>
+                    <input id="register-password-confirm" type="password" placeholder="Confirmer le mot de passe" />
+                  </label>
+                  <button class="ghost-button auth-submit" id="register-submit" type="submit">Creer mon compte</button>
+                </form>
+              </section>
             </section>
 
             <section class="auth-aside">
@@ -69,7 +94,7 @@
 
         <section class="screen" id="screen-home">
           <div class="home-hero">
-            <p class="home-kicker">Hello Marie !</p>
+            <p class="home-kicker" id="home-kicker">Hello Hortense !</p>
             <h3>Que souhaitons-nous faire aujourd'hui ?</h3>
           </div>
 
@@ -130,6 +155,7 @@
           </div>
 
           <div class="home-lower-grid">
+            <!--
             <div class="home-left-column">
                 <section class="panel home-panel">
                   <div class="panel-head">
@@ -171,6 +197,7 @@
                   </ul>
                 </section>
               </div>
+            -->
 
               <section class="panel home-panel procedure-panel">
                 <div class="procedure-head">
@@ -229,35 +256,47 @@
           <div class="content-grid dossier-grid">
             <section class="panel">
               <div class="panel-head">
-                <h4>Documents a ajouter</h4>
-                <button class="primary-action dossier-panel-action" id="add-document-button">Ajouter un document</button>
+                <div>
+                  <h4>Documents a ajouter</h4>
+                  <p class="panel-subtitle">Prototype de test : les fichiers ne sont pas reellement envoyes ni conserves.</p>
+                </div>
               </div>
+              <div class="stack-list dossier-upload-list" id="dossier-upload-list" hidden></div>
               <label class="search-box">
                 <span>Rechercher un document ou une formalite</span>
                 <input type="text" placeholder="CERFA, questionnaire, autres..." />
               </label>
 
                   <div class="stack-list">
-                    <article class="list-card">
+                    <article class="list-card form-list-card">
                       <div>
                         <strong>Mes documents</strong>
                         <p id="dossier-documents-text">Aucun document ajoute pour le moment</p>
                       </div>
-                      <span class="status-chip warn" id="dossier-documents-status">Non commence</span>
+                      <div class="form-card-actions">
+                        <button class="ghost-button form-fill-button" id="dossier-add-mes-documents" type="button">Ajouter un document</button>
+                        <span class="status-chip warn" id="dossier-documents-status">Non commence</span>
+                      </div>
                     </article>
-                    <article class="list-card">
+                    <article class="list-card form-list-card">
                       <div>
                         <strong>Carte d'identite</strong>
                         <p id="dossier-identite-text">Aucune piece d'identite ajoutee</p>
                       </div>
-                      <span class="status-chip warn" id="dossier-identite-status">Non commence</span>
+                      <div class="form-card-actions">
+                        <button class="ghost-button form-fill-button" id="dossier-add-identite" type="button">Ajouter un document</button>
+                        <span class="status-chip warn" id="dossier-identite-status">Non commence</span>
+                      </div>
                     </article>
-                    <article class="list-card">
+                    <article class="list-card form-list-card">
                       <div>
                         <strong>Autres</strong>
                         <p id="dossier-autres-text">Aucune piece complementaire ajoutee</p>
                       </div>
-                      <span class="status-chip soft" id="dossier-autres-status">Vide</span>
+                      <div class="form-card-actions">
+                        <button class="ghost-button form-fill-button" id="dossier-add-autres" type="button">Ajouter un document</button>
+                        <span class="status-chip soft" id="dossier-autres-status">Vide</span>
+                      </div>
                     </article>
                 </div>
             </section>
@@ -292,7 +331,7 @@
                     <div class="cerfa-preview-grid">
                       <article>
                         <span>Nom</span>
-                        <strong>Marie Bonjour</strong>
+                        <strong id="cerfa-preview-name">Hortense Bonjour</strong>
                       </article>
                       <article>
                         <span>Date de naissance</span>
@@ -383,7 +422,13 @@
                   <span class="pill lavender" id="parcours-step-badge">Etape 1/6</span>
                 </div>
                 <div class="timeline parcours-timeline" id="parcours-timeline">
-                  <button class="timeline-step active" data-parcours-step="dossier">
+                  <button class="timeline-step active" data-parcours-step="declaration">
+                    <span></span>
+                    <div>
+                      <strong>Declaration lors de l'inscription</strong>
+                    </div>
+                  </button>
+                  <button class="timeline-step" data-parcours-step="dossier">
                     <span></span>
                     <div>
                       <strong>Construction du dossier personnel</strong>
@@ -423,7 +468,56 @@
               </section>
 
               <div class="parcours-detail-stack" id="parcours-detail-stack">
-                <section class="panel parcours-detail active" data-parcours-panel="medecin">
+                <section class="panel parcours-detail active" data-parcours-panel="declaration">
+                  <div class="panel-head">
+                    <h4>Declaration lors de l'inscription</h4>
+                    <span class="pill">A completer</span>
+                  </div>
+                  <div class="document-schedule declaration-schedule">
+                    <article class="document-card rose" data-declaration-step="ants-account">
+                      <span class="document-card-icon" data-declaration-index>1</span>
+                      <span class="document-card-copy">
+                        <strong>Creer un compte ANTS</strong>
+                        <small>Creer un compte sur permisdeconduire.ants.gouv.fr ou se connecter via FranceConnect.</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </article>
+                    <article class="document-card yellow" data-declaration-step="start-process">
+                      <span class="document-card-icon" data-declaration-index>2</span>
+                      <span class="document-card-copy">
+                        <strong>Commencer la demarche</strong>
+                        <small>Aller sur "Commencer une nouvelle demarche en ligne" puis "Permis de conduire".</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </article>
+                    <article class="document-card blue" data-declaration-step="etat-civil">
+                      <span class="document-card-icon" data-declaration-index>3</span>
+                      <span class="document-card-copy">
+                        <strong>Renseigner son etat civil</strong>
+                        <small>Completer ses informations personnelles dans le formulaire d'inscription.</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </article>
+                    <article class="document-card mint" data-declaration-step="sante">
+                      <span class="document-card-icon" data-declaration-index>4</span>
+                      <span class="document-card-copy">
+                        <strong>Declarer son etat de sante</strong>
+                        <small>Repondre au questionnaire sur l'honneur et cocher la case epilepsie.</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </article>
+                    <article class="document-card lavender" data-declaration-step="neph">
+                      <span class="document-card-icon" data-declaration-index>5</span>
+                      <span class="document-card-copy">
+                        <strong>Obtenir son numero NEPH</strong>
+                        <small>Recuperer l'identifiant a 12 chiffres attribue a vie pour la suite du parcours.</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </article>
+                  </div>
+                </section>
+
+                <section class="panel parcours-detail" data-parcours-panel="medecin">
                   <div class="panel-head">
                     <h4>Choix des medecins</h4>
                     <button
@@ -530,6 +624,9 @@
                     <h4>Preparation du dossier medical-administratif</h4>
                     <button class="pill action-pill" id="open-preparation-modal" type="button">Gerer les documents</button>
                   </div>
+                  <p class="step-helper-text">
+                    Ces documents doivent etre prets et apportes le jour de votre rendez-vous avec le medecin agree.
+                  </p>
                   <div class="mini-progress">
                     <div class="mini-progress-head">
                       <span>Progression de l'etape</span>
@@ -811,10 +908,10 @@
 
           <div class="content-grid compte-grid">
             <section class="profile-card panel">
-              <div class="avatar">BM</div>
+              <div class="avatar" id="profile-avatar">MB</div>
               <div>
-                <strong>Bonjour Maria</strong>
-                <p>Permis B adapte - dossier actif</p>
+                <strong id="profile-name">Bonjour Marie</strong>
+                <p id="profile-status">Permis B adapte - dossier actif</p>
               </div>
             </section>
 
@@ -826,7 +923,7 @@
               <div class="info-grid">
                 <article class="info-card">
                   <span>Email</span>
-                  <strong>maria.bonjour@email.fr</strong>
+                  <strong id="profile-email">marie@email.fr</strong>
                 </article>
                 <article class="info-card">
                   <span>Telephone</span>
@@ -883,6 +980,75 @@
           </div>
         </section>
       </main>
+    </div>
+
+    <div class="modal-backdrop" id="dossier-upload-modal" hidden>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="dossier-upload-modal-title">
+        <div class="panel-head modal-head">
+          <div>
+            <p class="eyebrow">Ajout de document</p>
+            <h4 id="dossier-upload-modal-title">Ajouter un document</h4>
+          </div>
+          <button class="modal-close" id="dossier-upload-modal-close" aria-label="Fermer la fenetre">x</button>
+        </div>
+        <p class="modal-copy" id="dossier-upload-modal-copy">
+          Choisissez d'abord le document a ajouter, puis deposez votre fichier dans la zone prevue.
+        </p>
+        <div class="modal-document-list" id="dossier-upload-choice-list">
+          <button class="modal-document-item" type="button" data-dossier-choice="neurologue">
+            <strong>Compte-rendu neurologique</strong>
+            <small>Ajouter un compte-rendu de consultation ou de suivi.</small>
+          </button>
+          <button class="modal-document-item" type="button" data-dossier-choice="examens">
+            <strong>EEG / IRM</strong>
+            <small>Associer un resultat d'examen ou une imagerie utile.</small>
+          </button>
+          <button class="modal-document-item" type="button" data-dossier-choice="historique">
+            <strong>Historique medical</strong>
+            <small>Ajouter un historique des crises ou du traitement.</small>
+          </button>
+        </div>
+        <div class="dossier-modal-selected" id="dossier-upload-selected-target" hidden></div>
+        <div class="dossier-upload-surface" id="dossier-upload-modal-surface" hidden>
+          <label class="dossier-dropzone" id="dossier-modal-dropzone" for="dossier-modal-file-input">
+            <span class="dossier-dropzone-icon">+</span>
+            <strong>Glisser-deposer un document</strong>
+            <small>Deposez vos documents ici ou cliquez pour choisir un fichier</small>
+          </label>
+          <div class="dossier-upload-controls dossier-upload-controls-end">
+            <button class="primary-action dossier-panel-action" id="dossier-modal-browse-button" type="button">Parcourir les fichiers</button>
+          </div>
+          <input id="dossier-modal-file-input" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple hidden />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="permit-choice-modal" hidden>
+      <div class="modal-card permit-choice-card" role="dialog" aria-modal="true" aria-labelledby="permit-choice-title">
+        <div class="panel-head modal-head">
+          <div>
+            <p class="eyebrow">Bienvenue</p>
+            <h4 id="permit-choice-title">Quelques questions pour adapter votre parcours</h4>
+          </div>
+        </div>
+        <p class="modal-copy">
+          Ces reponses adaptent automatiquement certaines etapes du prototype.
+        </p>
+        <div class="quiz-block">
+          <strong>Avez vous le permis ?</strong>
+          <div class="permit-choice-actions">
+            <button class="primary-action permit-choice-button" id="permit-choice-yes" type="button">Oui</button>
+            <button class="ghost-button permit-choice-button" id="permit-choice-no" type="button">Non</button>
+          </div>
+        </div>
+        <div class="quiz-block">
+          <strong>Est-ce que vous avez deja un compte ANTS ?</strong>
+          <div class="permit-choice-actions">
+            <button class="primary-action permit-choice-button" id="ants-choice-yes" type="button">Oui</button>
+            <button class="ghost-button permit-choice-button" id="ants-choice-no" type="button">Non</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="modal-backdrop" id="document-modal" hidden>
