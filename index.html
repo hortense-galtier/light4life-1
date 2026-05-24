@@ -262,13 +262,8 @@
                 </div>
               </div>
               <div class="stack-list dossier-upload-list" id="dossier-upload-list" hidden></div>
-              <label class="search-box">
-                <span>Rechercher un document ou une formalite</span>
-                <input type="text" placeholder="CERFA, questionnaire, autres..." />
-              </label>
-
                   <div class="stack-list">
-                    <article class="list-card form-list-card">
+                    <article class="list-card form-list-card" id="dossier-documents-card">
                       <div>
                         <strong>Mes documents</strong>
                         <p id="dossier-documents-text">Aucun document ajoute pour le moment</p>
@@ -288,10 +283,10 @@
                         <span class="status-chip warn" id="dossier-identite-status">Non commence</span>
                       </div>
                     </article>
-                    <article class="list-card form-list-card">
+                    <article class="list-card form-list-card" id="dossier-autres-card">
                       <div>
-                        <strong>Autres</strong>
-                        <p id="dossier-autres-text">Aucune piece complementaire ajoutee</p>
+                        <strong>Examens complementaires</strong>
+                        <p id="dossier-autres-text">Aucun examen complementaire ajoute</p>
                       </div>
                       <div class="form-card-actions">
                         <button class="ghost-button form-fill-button" id="dossier-add-autres" type="button">Ajouter un document</button>
@@ -461,7 +456,7 @@
                   <button class="timeline-step" data-parcours-step="decision">
                     <span></span>
                     <div>
-                      <strong>Decision prefectorale et recours</strong>
+                      <strong id="decision-timeline-label">Decision prefectorale et recours</strong>
                     </div>
                   </button>
                 </div>
@@ -472,6 +467,15 @@
                   <div class="panel-head">
                     <h4>Declaration lors de l'inscription</h4>
                     <span class="pill">A completer</span>
+                  </div>
+                  <div class="mini-progress">
+                    <div class="mini-progress-head">
+                      <span>Progression de l'etape</span>
+                      <strong id="declaration-progress-label">0%</strong>
+                    </div>
+                    <div class="mini-progress-track" aria-hidden="true">
+                      <span class="mini-progress-fill" id="declaration-progress-fill" style="width: 0%"></span>
+                    </div>
                   </div>
                   <div class="document-schedule declaration-schedule">
                     <article class="document-card rose" data-declaration-step="ants-account">
@@ -486,7 +490,11 @@
                       <span class="document-card-icon" data-declaration-index>2</span>
                       <span class="document-card-copy">
                         <strong>Commencer la demarche</strong>
-                        <small>Aller sur "Commencer une nouvelle demarche en ligne" puis "Permis de conduire".</small>
+                        <small>
+                          Aller sur https://permisdeconduire.ants.gouv.fr/<br />
+                          puis sur "Commencer une nouvelle demarche en ligne"<br />
+                          puis "Permis de conduire".
+                        </small>
                       </span>
                       <span class="document-card-check"></span>
                     </article>
@@ -613,6 +621,54 @@
                       <span class="document-card-copy">
                         <strong>Examens EEG et IRM</strong>
                         <small>Deposer les resultats des examens disponibles</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card rose" data-screen="dossier" id="doc-card-cardiaque" hidden>
+                      <span class="document-card-icon">6</span>
+                      <span class="document-card-copy">
+                        <strong>Bilan cardiologique</strong>
+                        <small>Ajouter les documents lies au suivi cardiaque</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card yellow" data-screen="dossier" id="doc-card-avc-neuro" hidden>
+                      <span class="document-card-icon">7</span>
+                      <span class="document-card-copy">
+                        <strong>Compte-rendu AVC / neurologie</strong>
+                        <small>Deposer les comptes-rendus neurologiques complementaires</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card blue" data-screen="dossier" id="doc-card-visuels" hidden>
+                      <span class="document-card-icon">8</span>
+                      <span class="document-card-copy">
+                        <strong>Bilan ophtalmologique</strong>
+                        <small>Ajouter les documents utiles sur les troubles visuels</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card mint" data-screen="dossier" id="doc-card-moteurs" hidden>
+                      <span class="document-card-icon">9</span>
+                      <span class="document-card-copy">
+                        <strong>Bilan moteur</strong>
+                        <small>Ajouter les documents lies aux troubles moteurs</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card lavender" data-screen="dossier" id="doc-card-sommeil" hidden>
+                      <span class="document-card-icon">10</span>
+                      <span class="document-card-copy">
+                        <strong>Bilan du sommeil</strong>
+                        <small>Deposer les elements utiles concernant le sommeil</small>
+                      </span>
+                      <span class="document-card-check"></span>
+                    </button>
+                    <button class="document-card rose" data-screen="dossier" id="doc-card-autre-pathologie" hidden>
+                      <span class="document-card-icon">11</span>
+                      <span class="document-card-copy">
+                        <strong>Autre pathologie importante</strong>
+                        <small>Ajouter les documents medicaux complementaires utiles</small>
                       </span>
                       <span class="document-card-check"></span>
                     </button>
@@ -788,12 +844,12 @@
                   </div>
                 </section>
 
-                <section class="panel parcours-detail" data-parcours-panel="decision">
-                  <div class="panel-head">
-                    <h4>Decision prefectorale et recours</h4>
-                    <span class="pill">A completer</span>
-                  </div>
-                  <div class="mini-progress">
+                  <section class="panel parcours-detail" data-parcours-panel="decision">
+                    <div class="panel-head">
+                      <h4 id="decision-panel-title">Decision prefectorale et recours</h4>
+                      <span class="pill">A completer</span>
+                    </div>
+                    <div class="mini-progress">
                     <div class="mini-progress-head">
                       <span>Progression de l'etape</span>
                       <strong id="decision-progress-label">0%</strong>
@@ -801,17 +857,33 @@
                     <div class="mini-progress-track" aria-hidden="true">
                       <span class="mini-progress-fill" id="decision-progress-fill" style="width: 0%"></span>
                     </div>
-                  </div>
-                  <div class="document-schedule">
-                    <button class="document-card rose" id="decision-card-ants" data-screen="suivi">
-                      <span class="document-card-icon" id="decision-card-ants-icon">1</span>
-                      <span class="document-card-copy">
-                        <strong>Demande en ligne sur l'ANTS</strong>
-                        <small>Conserver l'avis medical et transmettre la demande via l'ANTS</small>
-                      </span>
-                      <span class="document-card-check"></span>
-                    </button>
-                    <button class="document-card yellow" id="decision-card-gracieux" data-screen="suivi">
+                    </div>
+                    <div class="document-schedule">
+                      <button class="document-card rose" id="decision-card-ants" data-decision-step="reconnect">
+                        <span class="document-card-icon" id="decision-card-ants-icon">1</span>
+                        <span class="document-card-copy">
+                          <strong>Se reconnecter a l'ANTS</strong>
+                          <small>Retourner sur votre espace pour reprendre la demarche en cours.</small>
+                        </span>
+                        <span class="document-card-check"></span>
+                      </button>
+                      <button class="document-card yellow" id="decision-card-reprendre" data-decision-step="resume">
+                        <span class="document-card-icon" id="decision-card-reprendre-icon">2</span>
+                        <span class="document-card-copy">
+                          <strong>Reprendre la demande en cours</strong>
+                          <small>Retrouver la demarche medicale deja engagee sur votre dossier.</small>
+                        </span>
+                        <span class="document-card-check"></span>
+                      </button>
+                      <button class="document-card blue" id="decision-card-completer" data-decision-step="submit">
+                        <span class="document-card-icon" id="decision-card-completer-icon">3</span>
+                        <span class="document-card-copy">
+                          <strong>Completer et envoyer</strong>
+                          <small>Verifier les informations, joindre les pieces utiles et transmettre.</small>
+                        </span>
+                        <span class="document-card-check"></span>
+                      </button>
+                    <button class="document-card yellow" id="decision-card-gracieux" data-decision-step="gracieux">
                       <span class="document-card-icon" id="decision-card-gracieux-icon">2</span>
                       <span class="document-card-copy">
                         <strong>Recours gracieux</strong>
@@ -819,7 +891,7 @@
                       </span>
                       <span class="document-card-check"></span>
                     </button>
-                    <button class="document-card blue" id="decision-card-contentieux" data-screen="suivi">
+                    <button class="document-card blue" id="decision-card-contentieux" data-decision-step="contentieux">
                       <span class="document-card-icon" id="decision-card-contentieux-icon">3</span>
                       <span class="document-card-copy">
                         <strong>Recours contentieux</strong>
@@ -951,32 +1023,6 @@
               </div>
             </section>
 
-            <section class="panel">
-              <div class="panel-head">
-                <h4>Preferences</h4>
-                <span class="pill">Notifications</span>
-              </div>
-              <div class="stack-list compact">
-                <article class="list-card">
-                  <div>
-                    <strong>Emails</strong>
-                    <p>Rappels et confirmations actives</p>
-                  </div>
-                </article>
-                <article class="list-card">
-                  <div>
-                    <strong>SMS</strong>
-                    <p>Alertes urgentes actives</p>
-                  </div>
-                </article>
-                <article class="list-card">
-                  <div>
-                    <strong>Confidentialite</strong>
-                    <p>Gestion des donnees personnelles</p>
-                  </div>
-                </article>
-              </div>
-            </section>
           </div>
         </section>
       </main>
@@ -994,20 +1040,7 @@
         <p class="modal-copy" id="dossier-upload-modal-copy">
           Choisissez d'abord le document a ajouter, puis deposez votre fichier dans la zone prevue.
         </p>
-        <div class="modal-document-list" id="dossier-upload-choice-list">
-          <button class="modal-document-item" type="button" data-dossier-choice="neurologue">
-            <strong>Compte-rendu neurologique</strong>
-            <small>Ajouter un compte-rendu de consultation ou de suivi.</small>
-          </button>
-          <button class="modal-document-item" type="button" data-dossier-choice="examens">
-            <strong>EEG / IRM</strong>
-            <small>Associer un resultat d'examen ou une imagerie utile.</small>
-          </button>
-          <button class="modal-document-item" type="button" data-dossier-choice="historique">
-            <strong>Historique medical</strong>
-            <small>Ajouter un historique des crises ou du traitement.</small>
-          </button>
-        </div>
+        <div class="modal-document-list" id="dossier-upload-choice-list"></div>
         <div class="dossier-modal-selected" id="dossier-upload-selected-target" hidden></div>
         <div class="dossier-upload-surface" id="dossier-upload-modal-surface" hidden>
           <label class="dossier-dropzone" id="dossier-modal-dropzone" for="dossier-modal-file-input">
@@ -1048,6 +1081,40 @@
             <button class="ghost-button permit-choice-button" id="ants-choice-no" type="button">Non</button>
           </div>
         </div>
+        <div class="quiz-block">
+          <strong>Etes-vous egalement suivi pour :</strong>
+          <div class="quiz-options">
+            <label class="quiz-option">
+              <input id="condition-cardiaque" type="checkbox" data-health-condition="cardiaque" />
+              <span>maladie cardiaque</span>
+            </label>
+            <label class="quiz-option">
+              <input id="condition-avc-neuro" type="checkbox" data-health-condition="avc-neuro" />
+              <span>AVC / neurologie</span>
+            </label>
+            <label class="quiz-option">
+              <input id="condition-visuels" type="checkbox" data-health-condition="visuels" />
+              <span>troubles visuels</span>
+            </label>
+            <label class="quiz-option">
+              <input id="condition-moteurs" type="checkbox" data-health-condition="moteurs" />
+              <span>troubles moteurs</span>
+            </label>
+            <label class="quiz-option">
+              <input id="condition-sommeil" type="checkbox" data-health-condition="sommeil" />
+              <span>troubles du sommeil</span>
+            </label>
+            <label class="quiz-option">
+              <input id="condition-autre-pathologie" type="checkbox" data-health-condition="autre-pathologie" />
+              <span>autre pathologie importante</span>
+            </label>
+            <label class="quiz-option">
+              <input id="condition-none" type="checkbox" data-health-condition="none" />
+              <span>aucune de ces situations</span>
+            </label>
+          </div>
+        </div>
+        <button class="primary-action" id="onboarding-quiz-submit" type="button" disabled>Valider mes reponses</button>
       </div>
     </div>
 

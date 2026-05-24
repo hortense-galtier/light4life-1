@@ -23,6 +23,8 @@ const permitChoiceYes = document.getElementById("permit-choice-yes");
 const permitChoiceNo = document.getElementById("permit-choice-no");
 const antsChoiceYes = document.getElementById("ants-choice-yes");
 const antsChoiceNo = document.getElementById("ants-choice-no");
+const onboardingQuizSubmit = document.getElementById("onboarding-quiz-submit");
+const healthConditionInputs = document.querySelectorAll("[data-health-condition]");
 
 const departementsPrefectures = [
   { code: "01", departement: "Ain", prefecture: "Bourg-en-Bresse" },
@@ -147,7 +149,6 @@ const dossierUploadModalClose = document.getElementById("dossier-upload-modal-cl
 const dossierUploadModalTitle = document.getElementById("dossier-upload-modal-title");
 const dossierUploadModalCopy = document.getElementById("dossier-upload-modal-copy");
 const dossierUploadChoiceList = document.getElementById("dossier-upload-choice-list");
-const dossierUploadChoiceButtons = document.querySelectorAll("[data-dossier-choice]");
 const dossierUploadSelectedTarget = document.getElementById("dossier-upload-selected-target");
 const dossierUploadModalSurface = document.getElementById("dossier-upload-modal-surface");
 const dossierModalDropzone = document.getElementById("dossier-modal-dropzone");
@@ -158,6 +159,7 @@ const dossierDocumentsText = document.getElementById("dossier-documents-text");
 const dossierDocumentsStatus = document.getElementById("dossier-documents-status");
 const dossierIdentiteText = document.getElementById("dossier-identite-text");
 const dossierIdentiteStatus = document.getElementById("dossier-identite-status");
+const dossierAutresCard = document.getElementById("dossier-autres-card");
 const dossierCerfaText = document.getElementById("dossier-cerfa-text");
 const dossierCerfaStatus = document.getElementById("dossier-cerfa-status");
 const dossierQuestionnaireText = document.getElementById("dossier-questionnaire-text");
@@ -166,6 +168,8 @@ const dossierAutresText = document.getElementById("dossier-autres-text");
 const dossierAutresStatus = document.getElementById("dossier-autres-status");
 const dossierProgressLabel = document.getElementById("dossier-progress-label");
 const dossierProgressFill = document.getElementById("dossier-progress-fill");
+const declarationProgressLabel = document.getElementById("declaration-progress-label");
+const declarationProgressFill = document.getElementById("declaration-progress-fill");
 const medecinProgressLabel = document.getElementById("medecin-progress-label");
 const medecinProgressFill = document.getElementById("medecin-progress-fill");
 const preparationProgressLabel = document.getElementById("preparation-progress-label");
@@ -190,8 +194,14 @@ const dossierQuestionnaireCard = document.getElementById("dossier-questionnaire-
 const openQuestionnaireFill = document.getElementById("open-questionnaire-fill");
 const questionnairePreview = document.getElementById("questionnaire-preview");
 const questionnairePreviewClose = document.getElementById("questionnaire-preview-close");
+const decisionPanelTitle = document.getElementById("decision-panel-title");
+const decisionTimelineLabel = document.getElementById("decision-timeline-label");
 const decisionCardAnts = document.getElementById("decision-card-ants");
 const decisionCardAntsIcon = document.getElementById("decision-card-ants-icon");
+const decisionCardReprendre = document.getElementById("decision-card-reprendre");
+const decisionCardReprendreIcon = document.getElementById("decision-card-reprendre-icon");
+const decisionCardCompleter = document.getElementById("decision-card-completer");
+const decisionCardCompleterIcon = document.getElementById("decision-card-completer-icon");
 const decisionCardGracieux = document.getElementById("decision-card-gracieux");
 const decisionCardGracieuxIcon = document.getElementById("decision-card-gracieux-icon");
 const decisionCardContentieux = document.getElementById("decision-card-contentieux");
@@ -246,19 +256,13 @@ let isAuthenticated = false;
 let uploadedFileEntries = [];
 let currentUser = null;
 let currentDossierUploadCategory = "";
+let currentDossierUploadMode = "mes-documents";
 
 const prototypeAccountsStorageKey = "light4lifePrototypeAccounts";
 const prototypeSessionStorageKey = "light4lifePrototypeCurrentUser";
 const prototypeProgressStorageKey = "light4lifePrototypeProgress";
-const defaultPrototypeAccounts = [
-  {
-    name: "Hortense Bonjour",
-    email: "hortense@email.fr",
-    password: "bonjour123",
-    hasDrivingLicense: true,
-    hasAntsAccount: true,
-  },
-];
+const prototypeResetStorageKey = "light4lifePrototypeResetV2";
+const defaultPrototypeAccounts = [];
 
 const dossierUploadCategoryDefinitions = {
   neurologue: {
@@ -279,6 +283,42 @@ const dossierUploadCategoryDefinitions = {
     bucketLabel: "Mes documents",
     linkedKeys: ["crises", "traitement", "traitement-cours"],
   },
+  cardiaque: {
+    label: "Bilan cardiologique",
+    bucket: "mes-documents",
+    bucketLabel: "Mes documents",
+    linkedKeys: ["cardiaque"],
+  },
+  "avc-neuro": {
+    label: "Compte-rendu AVC / neurologie",
+    bucket: "mes-documents",
+    bucketLabel: "Mes documents",
+    linkedKeys: ["avc-neuro"],
+  },
+  visuels: {
+    label: "Bilan ophtalmologique",
+    bucket: "mes-documents",
+    bucketLabel: "Mes documents",
+    linkedKeys: ["visuels"],
+  },
+  moteurs: {
+    label: "Bilan moteur",
+    bucket: "mes-documents",
+    bucketLabel: "Mes documents",
+    linkedKeys: ["moteurs"],
+  },
+  sommeil: {
+    label: "Bilan du sommeil",
+    bucket: "mes-documents",
+    bucketLabel: "Mes documents",
+    linkedKeys: ["sommeil"],
+  },
+  "autre-pathologie": {
+    label: "Autre pathologie importante",
+    bucket: "mes-documents",
+    bucketLabel: "Mes documents",
+    linkedKeys: ["autre-pathologie"],
+  },
   identite: {
     label: "Piece d'identite",
     bucket: "identite",
@@ -298,13 +338,43 @@ const dossierUploadCategoryDefinitions = {
     preparationKey: "questionnaire",
   },
   autres: {
-    label: "Autres",
+    label: "Examens complementaires",
     bucket: "autres",
-    bucketLabel: "Autres",
+    bucketLabel: "Examens complementaires",
+  },
+  "eeg-supplementaires": {
+    label: "EEG supplementaires",
+    bucket: "autres",
+    bucketLabel: "Examens complementaires",
+  },
+  "irm-complementaire": {
+    label: "IRM complementaire",
+    bucket: "autres",
+    bucketLabel: "Examens complementaires",
+  },
+  "scanner-cerebral": {
+    label: "Scanner cerebral",
+    bucket: "autres",
+    bucketLabel: "Examens complementaires",
+  },
+  "analyse-sanguine": {
+    label: "Analyse sanguine",
+    bucket: "autres",
+    bucketLabel: "Examens complementaires",
+  },
+  "dosage-medicaments": {
+    label: "Dosage des medicaments",
+    bucket: "autres",
+    bucketLabel: "Examens complementaires",
+  },
+  "bilan-neurologique": {
+    label: "Bilan neurologique complementaire",
+    bucket: "autres",
+    bucketLabel: "Examens complementaires",
   },
 };
 
-const dossierDocumentDefinitions = [
+const baseDossierDocumentDefinitions = [
   {
     key: "neurologue",
     title: "Compte-rendu(s) du neurologue",
@@ -332,6 +402,39 @@ const dossierDocumentDefinitions = [
   },
 ];
 
+const healthConditionDocumentDefinitions = {
+  cardiaque: {
+    key: "cardiaque",
+    title: "Bilan cardiologique",
+    card: document.getElementById("doc-card-cardiaque"),
+  },
+  "avc-neuro": {
+    key: "avc-neuro",
+    title: "Compte-rendu AVC / neurologie",
+    card: document.getElementById("doc-card-avc-neuro"),
+  },
+  visuels: {
+    key: "visuels",
+    title: "Bilan ophtalmologique",
+    card: document.getElementById("doc-card-visuels"),
+  },
+  moteurs: {
+    key: "moteurs",
+    title: "Bilan moteur",
+    card: document.getElementById("doc-card-moteurs"),
+  },
+  sommeil: {
+    key: "sommeil",
+    title: "Bilan du sommeil",
+    card: document.getElementById("doc-card-sommeil"),
+  },
+  "autre-pathologie": {
+    key: "autre-pathologie",
+    title: "Autre pathologie importante",
+    card: document.getElementById("doc-card-autre-pathologie"),
+  },
+};
+
 const preparationDocumentDefinitions = [
   {
     key: "cerfa",
@@ -355,13 +458,58 @@ const preparationDocumentDefinitions = [
   },
 ];
 
-const requiredPreparationKeys = ["cerfa", "questionnaire", "identite"];
 const preparationLabels = {
   cerfa: "CERFA 14880",
   questionnaire: "Questionnaire sur l'etat de sante",
   identite: "Carte d'identite",
   permis: "Permis de conduire",
 };
+
+function getRequiredPreparationKeys() {
+  return hasDrivingLicense()
+    ? ["cerfa", "questionnaire", "identite", "permis"]
+    : ["cerfa", "questionnaire", "identite"];
+}
+
+function getSelectedHealthConditions() {
+  return Array.isArray(currentUser?.healthConditions) ? currentUser.healthConditions : [];
+}
+
+function hasHealthConditionsChoice() {
+  return Array.isArray(currentUser?.healthConditions);
+}
+
+function getActiveDossierDocumentDefinitions() {
+  const activeConditions = getSelectedHealthConditions().filter((condition) => condition !== "none");
+  const extraDefinitions = activeConditions
+    .map((condition) => healthConditionDocumentDefinitions[condition])
+    .filter(Boolean);
+
+  return [...baseDossierDocumentDefinitions, ...extraDefinitions];
+}
+
+function getAllPossibleDossierDocumentKeys() {
+  return [
+    ...baseDossierDocumentDefinitions.map((documentItem) => documentItem.key),
+    ...Object.values(healthConditionDocumentDefinitions).map((documentItem) => documentItem.key),
+  ];
+}
+
+function getActiveHealthConditionCategoryKeys() {
+  return new Set(getSelectedHealthConditions().filter((condition) => condition !== "none"));
+}
+
+function pruneInactiveHealthConditionUploads() {
+  const activeConditionKeys = getActiveHealthConditionCategoryKeys();
+
+  uploadedFileEntries = uploadedFileEntries.filter((entry) => {
+    if (!(entry.category in healthConditionDocumentDefinitions)) {
+      return true;
+    }
+
+    return activeConditionKeys.has(entry.category);
+  });
+}
 
 const controleDocumentDefinitions = [
   { key: "examens", card: document.getElementById("controle-card-examens") },
@@ -400,6 +548,11 @@ const controleFollowupDefinitions = {
     description: "Centraliser les avis ou recommandations des specialistes demandes pour le dossier.",
     homeLabel: "Ajouter les avis de specialistes",
     cardLabel: "Recuperer les comptes-rendus ou recommandations des specialistes sollicites.",
+    items: [
+      "Neurologue",
+      "Neuropsychologue",
+      "Ophtalmologue",
+    ],
   },
   commission: {
     stepTitle: "Commission medicale",
@@ -420,6 +573,8 @@ const controleFollowupDefinitions = {
 const uploadedDocumentKeys = new Set();
 const uploadedPreparationKeys = new Set();
 const controleSelection = new Set();
+const declarationSelection = new Set();
+const decisionSelection = new Set();
 
 const medecinFirstNames = ["Claire", "Martin", "Sarah", "Louis", "Nina", "Thomas", "Emma", "Hugo"];
 const medecinLastNames = ["Dupont", "Bernard", "Moreau", "Garcia", "Petit", "Lambert", "Roux", "Fontaine"];
@@ -434,7 +589,11 @@ function getParcoursPanels() {
 }
 
 function getControleFollowupKeys() {
-  return controleStepValidated && !controleStepSkipped ? [...controleSelection] : [];
+  return controleStepValidated && !controleStepSkipped
+    ? controleDocumentDefinitions
+        .map((documentItem) => documentItem.key)
+        .filter((key) => controleSelection.has(key))
+    : [];
 }
 
 function getFollowupStepName(key) {
@@ -460,6 +619,12 @@ function getStepDisplayLabel(stepName) {
     return config?.stepTitle || "Suivi complementaire";
   }
 
+  if (stepName === "decision") {
+    return favorableAvisKeys.has(selectedAvisKey)
+      ? "Decision prefectorale"
+      : "Decision prefectorale et recours";
+  }
+
   const labels = {
     declaration: "Declaration lors de l'inscription",
     dossier: "Construction du dossier personnel",
@@ -467,7 +632,6 @@ function getStepDisplayLabel(stepName) {
     preparation: "Preparation du dossier medical-administratif",
     controle: "Controle medical d'aptitude",
     avis: "Avis medical",
-    decision: "Decision prefectorale et recours",
   };
 
   return labels[stepName] || stepName;
@@ -569,7 +733,7 @@ function renderDynamicControleSteps() {
           ${items
             .map(
               (itemLabel, itemIndex) => `
-                <button class="document-card ${["rose", "yellow", "blue", "mint", "lavender", "rose"][itemIndex % 6]} ${itemIndex > 0 ? "extra-item" : ""}" type="button" ${itemIndex > 0 ? "hidden" : ""} data-collapsible-item="${sectionKey}">
+                <button class="document-card ${["rose", "yellow", "blue", "mint", "lavender", "rose"][itemIndex % 6]} ${itemIndex > 0 ? "extra-item" : ""}" type="button" ${itemIndex > 0 ? "hidden" : ""} data-collapsible-item="${sectionKey}" data-open-dossier-autres="true">
                   <span class="document-card-icon">${itemIndex + 1}</span>
                   <span class="document-card-copy">
                     <strong>${itemLabel}</strong>
@@ -748,7 +912,7 @@ function renderMedecins() {
     card.addEventListener("click", () => {
       selectedMedecinId = card.dataset.medecinId;
       medecinStepComplete = true;
-      renderMedecins();
+      renderAllDocumentSimulations();
       showDocumentToast("Le medecin a ete selectionne.");
       setParcoursStep("preparation");
     });
@@ -772,34 +936,35 @@ function setActiveScreen(screenName) {
 function loadPrototypeAccounts() {
   try {
     const stored = window.localStorage.getItem(prototypeAccountsStorageKey);
-    const sanitizeAccounts = (accounts) =>
-      accounts.filter(
-        (account) =>
-          account.email?.toLowerCase() !== "marie@email.fr" &&
-          account.name?.toLowerCase() !== "marie bonjour",
-      );
+    const parsed = stored ? JSON.parse(stored) : null;
 
-    if (!stored) {
-      const sanitizedDefaults = sanitizeAccounts([...defaultPrototypeAccounts]);
-      window.localStorage.setItem(
-        prototypeAccountsStorageKey,
-        JSON.stringify(sanitizedDefaults),
-      );
-      return sanitizedDefaults;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed;
     }
 
-    const parsed = JSON.parse(stored);
-    const sanitizedAccounts = Array.isArray(parsed) && parsed.length
-      ? sanitizeAccounts(parsed)
-      : sanitizeAccounts([...defaultPrototypeAccounts]);
-
-    if (Array.isArray(parsed) && JSON.stringify(parsed) !== JSON.stringify(sanitizedAccounts)) {
-      window.localStorage.setItem(prototypeAccountsStorageKey, JSON.stringify(sanitizedAccounts));
-    }
-
-    return sanitizedAccounts;
+    const defaultAccounts = [...defaultPrototypeAccounts];
+    window.localStorage.setItem(
+      prototypeAccountsStorageKey,
+      JSON.stringify(defaultAccounts),
+    );
+    return defaultAccounts;
   } catch {
     return [...defaultPrototypeAccounts];
+  }
+}
+
+function resetPrototypeStorageIfNeeded() {
+  try {
+    if (window.localStorage.getItem(prototypeResetStorageKey) === "done") {
+      return;
+    }
+
+    window.localStorage.removeItem(prototypeAccountsStorageKey);
+    window.localStorage.removeItem(prototypeSessionStorageKey);
+    window.localStorage.removeItem(prototypeProgressStorageKey);
+    window.localStorage.setItem(prototypeResetStorageKey, "done");
+  } catch {
+    // Ignore storage reset failures in prototype mode.
   }
 }
 
@@ -826,6 +991,8 @@ function resetSimulationState() {
   uploadedDocumentKeys.clear();
   uploadedPreparationKeys.clear();
   controleSelection.clear();
+  declarationSelection.clear();
+  decisionSelection.clear();
   controleStepSkipped = false;
   controleStepValidated = false;
   medecinSearchQuery = "";
@@ -846,6 +1013,8 @@ function saveCurrentUserProgress() {
     uploadedDocumentKeys: [...uploadedDocumentKeys],
     uploadedPreparationKeys: [...uploadedPreparationKeys],
     controleSelection: [...controleSelection],
+    declarationSelection: [...declarationSelection],
+    decisionSelection: [...decisionSelection],
     controleStepSkipped,
     controleStepValidated,
     selectedMedecinId,
@@ -874,15 +1043,19 @@ function loadCurrentUserProgress() {
     ? savedState.uploadedFileEntries
     : [];
   (savedState.uploadedDocumentKeys || []).forEach((key) => uploadedDocumentKeys.add(key));
-  (savedState.uploadedPreparationKeys || []).forEach((key) => uploadedPreparationKeys.add(key));
-  (savedState.controleSelection || []).forEach((key) => controleSelection.add(key));
-  controleStepSkipped = Boolean(savedState.controleStepSkipped);
-  controleStepValidated = Boolean(savedState.controleStepValidated);
-  selectedMedecinId = savedState.selectedMedecinId || "";
-  medecinStepComplete = Boolean(savedState.medecinStepComplete);
-  selectedAvisKey = savedState.selectedAvisKey || "";
-  currentParcoursStep = savedState.currentParcoursStep || "declaration";
-}
+    (savedState.uploadedPreparationKeys || []).forEach((key) => uploadedPreparationKeys.add(key));
+    (savedState.controleSelection || []).forEach((key) => controleSelection.add(key));
+    (savedState.declarationSelection || []).forEach((key) => declarationSelection.add(key));
+    (savedState.decisionSelection || []).forEach((key) => decisionSelection.add(key));
+    controleStepSkipped = Boolean(savedState.controleStepSkipped);
+    controleStepValidated = Boolean(savedState.controleStepValidated);
+    selectedMedecinId = savedState.selectedMedecinId || "";
+    medecinStepComplete = Boolean(savedState.medecinStepComplete);
+    selectedAvisKey = savedState.selectedAvisKey || "";
+    currentParcoursStep = savedState.currentParcoursStep || "declaration";
+    pruneInactiveHealthConditionUploads();
+    syncUploadCategorySideEffects();
+  }
 
 function hasDrivingLicenseChoice() {
   return typeof currentUser?.hasDrivingLicense === "boolean";
@@ -898,6 +1071,27 @@ function hasAntsAccountChoice() {
 
 function hasAntsAccount() {
   return currentUser?.hasAntsAccount === true;
+}
+
+function updateOnboardingQuizState() {
+  const activeConditions = getSelectedHealthConditions();
+  const quizReady =
+    hasDrivingLicenseChoice() &&
+    hasAntsAccountChoice() &&
+    hasHealthConditionsChoice() &&
+    activeConditions.length > 0;
+
+  if (onboardingQuizSubmit) {
+    onboardingQuizSubmit.disabled = !quizReady;
+  }
+
+  healthConditionInputs.forEach((input) => {
+    if (!(input instanceof HTMLInputElement)) {
+      return;
+    }
+
+    input.checked = activeConditions.includes(input.dataset.healthCondition || "");
+  });
 }
 
 function persistCurrentUserUpdates() {
@@ -923,11 +1117,12 @@ function closePermitChoiceModal() {
 }
 
 function openPermitChoiceModal() {
+  updateOnboardingQuizState();
   permitChoiceModal?.removeAttribute("hidden");
 }
 
 function maybeCloseOnboardingQuiz() {
-  if (hasDrivingLicenseChoice() && hasAntsAccountChoice()) {
+  if (hasDrivingLicenseChoice() && hasAntsAccountChoice() && hasHealthConditionsChoice()) {
     closePermitChoiceModal();
     renderAllDocumentSimulations();
   }
@@ -937,6 +1132,7 @@ function renderPermitDependentUI() {
   const shouldShowPermitOption = hasDrivingLicense();
   const permitCard = document.getElementById("prep-card-permis");
   const conduiteCard = document.getElementById("controle-card-conduite");
+  const permitLabel = permitCard?.querySelector("strong");
 
   if (!shouldShowPermitOption) {
     uploadedPreparationKeys.delete("permis");
@@ -951,17 +1147,39 @@ function renderPermitDependentUI() {
     permitCard.hidden = !shouldShowPermitOption;
   }
 
+  if (permitLabel) {
+    permitLabel.innerHTML = shouldShowPermitOption
+      ? "Permis de conduire"
+      : "Permis de conduire <em class=\"optional-inline\">(masque)</em>";
+  }
+
   if (conduiteCard) {
     conduiteCard.hidden = !shouldShowPermitOption;
   }
 }
 
 function renderDeclarationSteps() {
+  const declarationTimelineStep = document.querySelector('[data-parcours-step="declaration"]');
   const antsAccountStep = document.querySelector('[data-declaration-step="ants-account"]');
   const declarationSteps = document.querySelectorAll("[data-declaration-step]");
 
   if (antsAccountStep) {
     antsAccountStep.hidden = hasAntsAccount();
+  }
+
+  const visibleSteps = [...declarationSteps].filter((step) => !step.hidden);
+  const completedCount = visibleSteps.filter((step) =>
+    declarationSelection.has(step.dataset.declarationStep),
+  ).length;
+  const progress = visibleSteps.length ? Math.round((completedCount / visibleSteps.length) * 100) : 0;
+  const declarationComplete = visibleSteps.length > 0 && completedCount === visibleSteps.length;
+
+  if (declarationProgressLabel) {
+    declarationProgressLabel.textContent = `${progress}%`;
+  }
+
+  if (declarationProgressFill) {
+    declarationProgressFill.style.width = `${progress}%`;
   }
 
   declarationSteps.forEach((step, index) => {
@@ -973,7 +1191,21 @@ function renderDeclarationSteps() {
     if (badge) {
       badge.textContent = `${index + 1 - [...declarationSteps].slice(0, index).filter((item) => item.hidden).length}`;
     }
+
+    step.classList.toggle("is-complete", declarationSelection.has(step.dataset.declarationStep));
   });
+
+  if (declarationTimelineStep) {
+    declarationTimelineStep.classList.toggle("done", declarationComplete);
+  }
+
+  if (declarationComplete && currentParcoursStep === "declaration") {
+    setParcoursStep("dossier");
+  }
+
+  if (!declarationComplete && currentParcoursStep === "dossier") {
+    setParcoursStep("declaration");
+  }
 }
 
 function getAvatarInitials(name) {
@@ -986,8 +1218,8 @@ function getAvatarInitials(name) {
 }
 
 function updateUserUI() {
-  const displayName = currentUser?.name || "Hortense Bonjour";
-  const displayEmail = currentUser?.email || "hortense@email.fr";
+  const displayName = currentUser?.name || "Elodie";
+  const displayEmail = currentUser?.email || "elodie@gmail.com";
   const firstName = displayName.split(" ").filter(Boolean)[0] || displayName;
   const permitStatus = hasDrivingLicenseChoice()
     ? hasDrivingLicense()
@@ -1217,6 +1449,19 @@ function focusDossierCerfaCard() {
   }, 1800);
 }
 
+function focusDossierAutresCard() {
+  if (!dossierAutresCard) {
+    return;
+  }
+
+  dossierAutresCard.classList.add("is-focused");
+  dossierAutresCard.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  window.setTimeout(() => {
+    dossierAutresCard.classList.remove("is-focused");
+  }, 1800);
+}
+
 function toggleCerfaPreview(forceOpen = false) {
   if (!cerfaPreview) {
     return;
@@ -1286,8 +1531,20 @@ function getDossierModalTargetLabel(category) {
     neurologue: "Mes documents > Compte-rendu neurologique",
     examens: "Mes documents > EEG / IRM",
     historique: "Mes documents > Historique medical",
+    cardiaque: "Mes documents > Bilan cardiologique",
+    "avc-neuro": "Mes documents > Compte-rendu AVC / neurologie",
+    visuels: "Mes documents > Bilan ophtalmologique",
+    moteurs: "Mes documents > Bilan moteur",
+    sommeil: "Mes documents > Bilan du sommeil",
+    "autre-pathologie": "Mes documents > Autre pathologie importante",
     identite: "Carte d'identite",
-    autres: "Autres",
+    autres: "Examens complementaires",
+    "eeg-supplementaires": "Examens complementaires > EEG supplementaires",
+    "irm-complementaire": "Examens complementaires > IRM complementaire",
+    "scanner-cerebral": "Examens complementaires > Scanner cerebral",
+    "analyse-sanguine": "Examens complementaires > Analyse sanguine",
+    "dosage-medicaments": "Examens complementaires > Dosage des medicaments",
+    "bilan-neurologique": "Examens complementaires > Bilan neurologique complementaire",
   };
 
   return labels[category] || getUploadCategoryLabel(category);
@@ -1308,6 +1565,80 @@ function updateDossierUploadTarget() {
   dossierUploadSelectedTarget.removeAttribute("hidden");
 }
 
+function getDossierUploadChoices(mode) {
+  if (mode === "autres") {
+    return [
+      {
+        key: "eeg-supplementaires",
+        title: "EEG supplementaires",
+        copy: "Ajouter les resultats ou le compte-rendu de cet examen.",
+      },
+      {
+        key: "irm-complementaire",
+        title: "IRM complementaire",
+        copy: "Ajouter les resultats ou le compte-rendu de cet examen.",
+      },
+      {
+        key: "scanner-cerebral",
+        title: "Scanner cerebral",
+        copy: "Ajouter les resultats ou le compte-rendu de cet examen.",
+      },
+      {
+        key: "analyse-sanguine",
+        title: "Analyse sanguine",
+        copy: "Ajouter les resultats ou le compte-rendu de cet examen.",
+      },
+      {
+        key: "dosage-medicaments",
+        title: "Dosage des medicaments",
+        copy: "Ajouter les resultats ou le compte-rendu de cet examen.",
+      },
+      {
+        key: "bilan-neurologique",
+        title: "Bilan neurologique complementaire",
+        copy: "Ajouter les resultats ou le compte-rendu de cet examen.",
+      },
+    ];
+  }
+
+  const baseChoices = [
+      {
+        key: "neurologue",
+        title: "Compte-rendu neurologique",
+      copy: "Ajouter un compte-rendu de consultation ou de suivi.",
+    },
+    {
+      key: "examens",
+      title: "EEG / IRM",
+      copy: "Associer un resultat d'examen ou une imagerie utile.",
+    },
+      {
+        key: "historique",
+        title: "Historique medical",
+        copy: "Ajouter un historique des crises ou du traitement.",
+      },
+    ];
+
+  const extraChoices = getSelectedHealthConditions()
+    .filter((condition) => condition !== "none")
+    .map((condition) => {
+      const config = healthConditionDocumentDefinitions[condition];
+
+      if (!config) {
+        return null;
+      }
+
+      return {
+        key: condition,
+        title: config.title,
+        copy: "Ajouter les documents complementaires lies a cette situation medicale.",
+      };
+    })
+    .filter(Boolean);
+
+  return [...baseChoices, ...extraChoices];
+}
+
 function syncUploadCategorySideEffects() {
   Object.entries(dossierUploadCategoryDefinitions).forEach(([categoryKey, config]) => {
     if (config.preparationKey) {
@@ -1321,11 +1652,7 @@ function syncUploadCategorySideEffects() {
     }
   });
 
-  uploadedDocumentKeys.delete("neurologue");
-  uploadedDocumentKeys.delete("examens");
-  uploadedDocumentKeys.delete("crises");
-  uploadedDocumentKeys.delete("traitement");
-  uploadedDocumentKeys.delete("traitement-cours");
+  getAllPossibleDossierDocumentKeys().forEach((key) => uploadedDocumentKeys.delete(key));
 
   uploadedFileEntries.forEach((entry) => {
     const config = dossierUploadCategoryDefinitions[entry.category];
@@ -1446,13 +1773,18 @@ function updateBackToTopVisibility() {
 }
 
 function renderUploadCards() {
-  const mesDocumentFiles = uploadedFileEntries.filter((entry) =>
-    ["neurologue", "examens", "historique"].includes(entry.category),
+  const mesDocumentFiles = uploadedFileEntries.filter(
+    (entry) => dossierUploadCategoryDefinitions[entry.category]?.bucket === "mes-documents",
   );
   const identiteFiles = uploadedFileEntries.filter((entry) => entry.category === "identite");
-  const autresFiles = uploadedFileEntries.filter((entry) => entry.category === "autres");
+  const autresFiles = uploadedFileEntries.filter(
+    (entry) => dossierUploadCategoryDefinitions[entry.category]?.bucket === "autres",
+  );
   const mesDocumentsCount = mesDocumentFiles.length;
-  const mesDocumentsComplete = uploadedDocumentKeys.size === dossierDocumentDefinitions.length;
+  const activeDossierDefinitions = getActiveDossierDocumentDefinitions();
+  const mesDocumentsComplete = activeDossierDefinitions.every((documentItem) =>
+    uploadedDocumentKeys.has(documentItem.key),
+  );
 
   if (dossierDocumentsText && dossierDocumentsStatus) {
     dossierDocumentsText.textContent =
@@ -1517,10 +1849,10 @@ function renderUploadCards() {
 
     dossierAutresText.textContent =
       autresCount === 0
-        ? "Aucune piece complementaire ajoutee"
+        ? "Aucun examen complementaire ajoute"
         : autresFiles.length > 0
           ? `${autresFiles.length} fichier${autresFiles.length > 1 ? "s" : ""} associe${autresFiles.length > 1 ? "s" : ""} - dernier : ${autresFiles[autresFiles.length - 1].name}`
-          : `${autresCount} piece${autresCount > 1 ? "s" : ""} complementaire${autresCount > 1 ? "s" : ""} ajoutee${autresCount > 1 ? "s" : ""}`;
+          : `${autresCount} examen${autresCount > 1 ? "s" : ""} complementaire${autresCount > 1 ? "s" : ""} ajoute${autresCount > 1 ? "s" : ""}`;
     dossierAutresStatus.textContent =
       autresCount === 0 ? "Vide" : uploadedPreparationKeys.has("permis") && autresFiles.length > 0 ? "Complet" : "En cours";
     dossierAutresStatus.className =
@@ -1533,12 +1865,31 @@ function renderUploadCards() {
 }
 
 function renderDossierChoiceState() {
-  dossierUploadChoiceButtons.forEach((button) => {
+  dossierUploadChoiceList?.querySelectorAll("[data-dossier-choice]").forEach((button) => {
     const category = button.dataset.dossierChoice;
     const hasUploadedFile = uploadedFileEntries.some((entry) => entry.category === category);
     button.classList.toggle("is-selected", category === currentDossierUploadCategory);
     button.classList.toggle("is-added", hasUploadedFile);
   });
+}
+
+function renderDossierUploadChoices(mode) {
+  if (!dossierUploadChoiceList) {
+    return;
+  }
+
+  dossierUploadChoiceList.innerHTML = getDossierUploadChoices(mode)
+    .map(
+      (choice) => `
+        <button class="modal-document-item" type="button" data-dossier-choice="${choice.key}">
+          <strong>${choice.title}</strong>
+          <small>${choice.copy}</small>
+        </button>
+        `,
+    )
+    .join("");
+
+  renderDossierChoiceState();
 }
 
 function updateDossierUploadModalSelection() {
@@ -1550,9 +1901,12 @@ function showDossierUploadSurface(category) {
   currentDossierUploadCategory = category;
   dossierUploadModalSurface?.removeAttribute("hidden");
   updateDossierUploadModalSelection();
+  dossierUploadModalSurface?.scrollIntoView({ behavior: "smooth", block: "center" });
+  dossierModalBrowseButton?.focus();
 }
 
 function openDossierUploadModal(mode) {
+  currentDossierUploadMode = mode;
   currentDossierUploadCategory = "";
   dossierUploadModal?.removeAttribute("hidden");
   dossierUploadChoiceList?.removeAttribute("hidden");
@@ -1563,6 +1917,7 @@ function openDossierUploadModal(mode) {
   }
 
   if (mode === "mes-documents") {
+    renderDossierUploadChoices("mes-documents");
     if (dossierUploadModalTitle) {
       dossierUploadModalTitle.textContent = "Ajouter un document";
     }
@@ -1584,17 +1939,17 @@ function openDossierUploadModal(mode) {
     dossierUploadChoiceList?.setAttribute("hidden", "");
     showDossierUploadSurface("identite");
   } else {
+    renderDossierUploadChoices("autres");
     if (dossierUploadModalTitle) {
-      dossierUploadModalTitle.textContent = "Ajouter un document complementaire";
+      dossierUploadModalTitle.textContent = "Ajouter un examen complementaire";
     }
 
     if (dossierUploadModalCopy) {
       dossierUploadModalCopy.textContent =
-        "Deposez ici un document complementaire a conserver dans la categorie Autres.";
+        "Choisissez d'abord l'examen complementaire a ajouter, puis deposez votre fichier dans la zone prevue.";
     }
 
-    dossierUploadChoiceList?.setAttribute("hidden", "");
-    showDossierUploadSurface("autres");
+    dossierUploadChoiceList?.removeAttribute("hidden");
   }
 
   updateDossierUploadModalSelection();
@@ -1651,7 +2006,10 @@ function renderChecklistState() {
 
 function updateHomeAndParcoursStatus() {
   const dossierComplete =
-    uploadedDocumentKeys.size === dossierDocumentDefinitions.length;
+    getActiveDossierDocumentDefinitions().every((documentItem) =>
+      uploadedDocumentKeys.has(documentItem.key),
+    );
+  const requiredPreparationKeys = getRequiredPreparationKeys();
   const preparationComplete = requiredPreparationKeys.every((key) =>
     uploadedPreparationKeys.has(key),
   );
@@ -1672,12 +2030,16 @@ function updateHomeAndParcoursStatus() {
   let action2 = "Obtenir le numero NEPH";
 
   if (avisComplete) {
-    currentStepLabel = "Etape actuelle: Decision prefectorale et recours";
+    currentStepLabel = `Etape actuelle: ${getStepDisplayLabel("decision")}`;
     stepIndex = getParcoursOrder().indexOf("decision") + 1;
     currentStepCount = `${stepIndex} sur ${totalSteps}`;
     badgeText = `Etape ${stepIndex}/${totalSteps}`;
-    action1 = "Transmettre la demande sur l'ANTS";
-    action2 = "Verifier la decision prefectorale";
+    action1 = favorableAvisKeys.has(selectedAvisKey)
+      ? "Se reconnecter a l'ANTS"
+      : "Preparer un recours gracieux";
+    action2 = favorableAvisKeys.has(selectedAvisKey)
+      ? "Completer et envoyer"
+      : "Envisager un recours contentieux";
   } else if (controleNeedsFollowup) {
     const currentFollowupStep = isFollowupStep(currentParcoursStep)
       ? currentParcoursStep
@@ -1788,8 +2150,11 @@ function renderControleFollowup() {
 }
 
 function renderDossierSimulation() {
-  const totalDocuments = dossierDocumentDefinitions.length;
-  const uploadedDocumentsCount = uploadedDocumentKeys.size;
+  const activeDossierDefinitions = getActiveDossierDocumentDefinitions();
+  const totalDocuments = activeDossierDefinitions.length;
+  const uploadedDocumentsCount = activeDossierDefinitions.filter((documentItem) =>
+    uploadedDocumentKeys.has(documentItem.key),
+  ).length;
   const progress = Math.round((uploadedDocumentsCount / totalDocuments) * 100);
   const dossierComplete = uploadedDocumentsCount === totalDocuments;
   const dossierStep = document.querySelector('[data-parcours-step="dossier"]');
@@ -1806,7 +2171,20 @@ function renderDossierSimulation() {
     dossierStep.classList.toggle("done", dossierComplete);
   }
 
-  dossierDocumentDefinitions.forEach((documentItem) => {
+  baseDossierDocumentDefinitions.forEach((documentItem) => {
+    documentItem.card?.removeAttribute("hidden");
+  });
+
+  Object.values(healthConditionDocumentDefinitions).forEach((documentItem) => {
+    const isActive = activeDossierDefinitions.some((activeItem) => activeItem.key === documentItem.key);
+    documentItem.card?.toggleAttribute("hidden", !isActive);
+  });
+
+  activeDossierDefinitions.forEach((documentItem, index) => {
+    const icon = documentItem.card?.querySelector(".document-card-icon");
+    if (icon) {
+      icon.textContent = `${index + 1}`;
+    }
     documentItem.card?.classList.toggle(
       "is-complete",
       uploadedDocumentKeys.has(documentItem.key),
@@ -1840,6 +2218,7 @@ function renderMedecinSimulation() {
 }
 
 function renderPreparationSimulation() {
+  const requiredPreparationKeys = getRequiredPreparationKeys();
   const totalDocuments = requiredPreparationKeys.length;
   const uploadedDocumentsCount = requiredPreparationKeys.filter((key) =>
     uploadedPreparationKeys.has(key),
@@ -1960,6 +2339,19 @@ function renderAvisSimulation() {
 function renderDecisionSimulation() {
   const visibleCards = [];
   const favorableAvis = favorableAvisKeys.has(selectedAvisKey);
+  const decisionStep = document.querySelector('[data-parcours-step="decision"]');
+
+  if (decisionPanelTitle) {
+    decisionPanelTitle.textContent = favorableAvis
+      ? "Decision prefectorale"
+      : "Decision prefectorale et recours";
+  }
+
+  if (decisionTimelineLabel) {
+    decisionTimelineLabel.textContent = favorableAvis
+      ? "Decision prefectorale"
+      : "Decision prefectorale et recours";
+  }
 
   if (decisionCardAnts) {
     const visible = favorableAvis;
@@ -1967,6 +2359,24 @@ function renderDecisionSimulation() {
 
     if (visible) {
       visibleCards.push({ icon: decisionCardAntsIcon, card: decisionCardAnts });
+    }
+  }
+
+  if (decisionCardReprendre) {
+    const visible = favorableAvis;
+    decisionCardReprendre.hidden = !visible;
+
+    if (visible) {
+      visibleCards.push({ icon: decisionCardReprendreIcon, card: decisionCardReprendre });
+    }
+  }
+
+  if (decisionCardCompleter) {
+    const visible = favorableAvis;
+    decisionCardCompleter.hidden = !visible;
+
+    if (visible) {
+      visibleCards.push({ icon: decisionCardCompleterIcon, card: decisionCardCompleter });
     }
   }
 
@@ -1994,7 +2404,25 @@ function renderDecisionSimulation() {
     }
   });
 
-  const progress = 0;
+  const visibleDecisionKeys = visibleCards
+    .map((item) => item.card?.dataset?.decisionStep)
+    .filter(Boolean);
+  const completedVisibleKeys = visibleDecisionKeys.filter((key) => decisionSelection.has(key));
+  const progress = visibleDecisionKeys.length
+    ? Math.round((completedVisibleKeys.length / visibleDecisionKeys.length) * 100)
+    : 0;
+
+  visibleCards.forEach((item) => {
+    const decisionKey = item.card?.dataset?.decisionStep;
+    item.card?.classList.toggle("is-complete", Boolean(decisionKey) && decisionSelection.has(decisionKey));
+  });
+
+  if (decisionStep) {
+    decisionStep.classList.toggle(
+      "done",
+      visibleDecisionKeys.length > 0 && completedVisibleKeys.length === visibleDecisionKeys.length,
+    );
+  }
 
   if (decisionProgressLabel) {
     decisionProgressLabel.textContent = `${progress}%`;
@@ -2046,16 +2474,20 @@ function setupDocumentSimulation() {
     }
   });
 
-  dossierUploadChoiceButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const { dossierChoice } = button.dataset;
+  dossierUploadChoiceList?.addEventListener("click", (event) => {
+    const choiceButton = event.target.closest("[data-dossier-choice]");
 
-      if (!dossierChoice) {
-        return;
-      }
+    if (!choiceButton) {
+      return;
+    }
 
-      showDossierUploadSurface(dossierChoice);
-    });
+    const { dossierChoice } = choiceButton.dataset;
+
+    if (!dossierChoice) {
+      return;
+    }
+
+    showDossierUploadSurface(dossierChoice);
   });
 
   dossierModalBrowseButton?.addEventListener("click", () => {
@@ -2128,10 +2560,10 @@ function setupDocumentSimulation() {
         return;
       }
 
-      const definitions =
-        documentFlow === "preparation"
-          ? preparationDocumentDefinitions
-          : dossierDocumentDefinitions;
+        const definitions =
+          documentFlow === "preparation"
+            ? preparationDocumentDefinitions
+            : getActiveDossierDocumentDefinitions();
       const store =
         documentFlow === "preparation" ? uploadedPreparationKeys : uploadedDocumentKeys;
       const documentDefinition = definitions.find(
@@ -2155,7 +2587,7 @@ function setupDocumentSimulation() {
       if (documentFlow === "preparation") {
         setActiveScreen("parcours");
         setParcoursStep(
-          requiredPreparationKeys.every((key) => uploadedPreparationKeys.has(key))
+          getRequiredPreparationKeys().every((key) => uploadedPreparationKeys.has(key))
             ? "controle"
             : "preparation",
         );
@@ -2207,6 +2639,7 @@ function setupDocumentSimulation() {
   avisDefinitions.forEach((avisItem) => {
     avisItem.card?.addEventListener("click", () => {
       selectedAvisKey = avisItem.key;
+      decisionSelection.clear();
       renderAllDocumentSimulations();
       showDocumentToast("L'avis medical a ete selectionne.");
       setParcoursStep("decision");
@@ -2308,7 +2741,14 @@ registerForm?.addEventListener("submit", (event) => {
     return;
   }
 
-  const newAccount = { name, email, password, hasDrivingLicense: null, hasAntsAccount: null };
+  const newAccount = {
+    name,
+    email,
+    password,
+    hasDrivingLicense: null,
+    hasAntsAccount: null,
+    healthConditions: null,
+  };
   accounts.push(newAccount);
   savePrototypeAccounts(accounts);
 
@@ -2335,7 +2775,7 @@ permitChoiceYes?.addEventListener("click", () => {
 
   currentUser = { ...currentUser, hasDrivingLicense: true };
   persistCurrentUserUpdates();
-  maybeCloseOnboardingQuiz();
+  updateOnboardingQuizState();
   showDocumentToast("Le parcours a ete ajuste avec le permis de conduire.");
 });
 
@@ -2346,7 +2786,7 @@ permitChoiceNo?.addEventListener("click", () => {
 
   currentUser = { ...currentUser, hasDrivingLicense: false };
   persistCurrentUserUpdates();
-  maybeCloseOnboardingQuiz();
+  updateOnboardingQuizState();
   showDocumentToast("Le parcours a ete ajuste sans permis de conduire.");
 });
 
@@ -2357,7 +2797,7 @@ antsChoiceYes?.addEventListener("click", () => {
 
   currentUser = { ...currentUser, hasAntsAccount: true };
   persistCurrentUserUpdates();
-  maybeCloseOnboardingQuiz();
+  updateOnboardingQuizState();
   showDocumentToast("Le parcours a ete ajuste avec un compte ANTS existant.");
 });
 
@@ -2368,8 +2808,53 @@ antsChoiceNo?.addEventListener("click", () => {
 
   currentUser = { ...currentUser, hasAntsAccount: false };
   persistCurrentUserUpdates();
-  maybeCloseOnboardingQuiz();
+  updateOnboardingQuizState();
   showDocumentToast("Le parcours conserve la creation de compte ANTS.");
+});
+
+healthConditionInputs.forEach((input) => {
+  input.addEventListener("change", () => {
+    if (!currentUser || !(input instanceof HTMLInputElement)) {
+      return;
+    }
+
+    const condition = input.dataset.healthCondition;
+    if (!condition) {
+      return;
+    }
+
+    const selectedConditions = new Set(getSelectedHealthConditions());
+
+    if (condition === "none") {
+      currentUser = {
+        ...currentUser,
+        healthConditions: input.checked ? ["none"] : [],
+      };
+    } else {
+      selectedConditions.delete("none");
+
+      if (input.checked) {
+        selectedConditions.add(condition);
+      } else {
+        selectedConditions.delete(condition);
+      }
+
+      currentUser = {
+        ...currentUser,
+        healthConditions: [...selectedConditions],
+      };
+    }
+
+    persistCurrentUserUpdates();
+    pruneInactiveHealthConditionUploads();
+    syncUploadCategorySideEffects();
+    updateOnboardingQuizState();
+  });
+});
+
+onboardingQuizSubmit?.addEventListener("click", () => {
+  maybeCloseOnboardingQuiz();
+  showDocumentToast("Le questionnaire d'inscription a ete pris en compte.");
 });
 
 screenButtons.forEach((button) => {
@@ -2391,6 +2876,50 @@ parcoursTimeline?.addEventListener("click", (event) => {
 });
 
 parcoursDetailStack?.addEventListener("click", (event) => {
+  const declarationStepCard = event.target.closest("[data-declaration-step]");
+
+  if (declarationStepCard) {
+    const { declarationStep } = declarationStepCard.dataset;
+
+    if (declarationStep) {
+      if (declarationSelection.has(declarationStep)) {
+        declarationSelection.delete(declarationStep);
+      } else {
+        declarationSelection.add(declarationStep);
+      }
+
+      renderAllDocumentSimulations();
+    }
+    return;
+  }
+
+  const decisionStepCard = event.target.closest("[data-decision-step]");
+
+  if (decisionStepCard) {
+    const { decisionStep } = decisionStepCard.dataset;
+
+    if (decisionStep) {
+      if (decisionSelection.has(decisionStep)) {
+        decisionSelection.delete(decisionStep);
+      } else {
+        decisionSelection.add(decisionStep);
+      }
+
+      renderAllDocumentSimulations();
+    }
+    return;
+  }
+
+  const dossierAutresShortcut = event.target.closest("[data-open-dossier-autres]");
+
+  if (dossierAutresShortcut) {
+    setActiveScreen("dossier");
+    window.setTimeout(() => {
+      focusDossierAutresCard();
+    }, 80);
+    return;
+  }
+
   const toggle = event.target.closest("[data-collapsible-toggle]");
 
   if (!toggle) {
@@ -2422,6 +2951,7 @@ setupExpandToggle(agendaToggle, ".agenda-list .extra-item");
 setupDocumentSimulation();
 updateBackToTopVisibility();
 window.addEventListener("scroll", updateBackToTopVisibility);
+resetPrototypeStorageIfNeeded();
 updateUserUI();
 
 try {
